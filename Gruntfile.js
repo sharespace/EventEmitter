@@ -128,7 +128,7 @@ module.exports = function(grunt) {
 
         open : {
             test: {
-                path: 'http://localhost:8888/_SpecRunner.html',
+                path: 'http://localhost:8888/TestsRunner.html',
                 delay: 1000
             }
         }
