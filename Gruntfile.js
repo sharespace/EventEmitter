@@ -67,17 +67,6 @@ module.exports = function(grunt) {
             }
         },
 
-        //Connect task
-
-        connect: {
-            server: {
-                options: {
-                    port: 8888,
-                    keepalive: true
-                }
-            }
-        },
-
         //Concat task
 
         concat: {
@@ -124,15 +113,6 @@ module.exports = function(grunt) {
             }
         },
 
-        //Open task
-
-        open : {
-            test: {
-                path: 'http://localhost:8888/TestsRunner.html',
-                delay: 1000
-            }
-        }
-
     });
 
     // Load the plugins tasks
@@ -141,11 +121,8 @@ module.exports = function(grunt) {
     grunt.loadNpmTasks('grunt-contrib-watch');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-jasmine');
-    grunt.loadNpmTasks("grunt-contrib-connect");
-    grunt.loadNpmTasks('grunt-open');
 
     // Default task(s).
     grunt.registerTask('default', ['clean', 'jasmine', 'concat', 'uglify']);
-    grunt.registerTask('test-debug', ['jasmine:pivotal', 'open:test', 'connect']);
 
 };
