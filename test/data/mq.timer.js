@@ -52,4 +52,10 @@ describe("The MQ.Timer", function () {
 		expect(timer.timeout).toBe(timeout);
 		expect(timer.callback).toEqual(callback);
 	});
+
+	it("A timer provides version", function () {
+		var timer = new MQ.Timer();
+
+		expect(timer.version).toBeDefined();
+	});
 });
