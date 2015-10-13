@@ -38,4 +38,18 @@ describe("The MQ.Timer", function () {
 			done();
 		}, timeout);
 	});
+
+	it("When a timer is not running, the cancel method has no effect", function () {
+		var timer,
+			timeout = 50,
+			callback = function () {};
+
+		timer = new MQ.Timer(timeout, callback);
+
+		expect(function () {
+			timer.cancel();
+		}).not.toThrowError();
+		expect(timer.timeout).toBe(timeout);
+		expect(timer.callback).toEqual(callback);
+	});
 });
