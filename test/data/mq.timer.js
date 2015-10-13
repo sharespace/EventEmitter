@@ -9,13 +9,12 @@ describe("The MQ.Timer", function () {
 	it("The timer invokes a callback function after the specified time", function (done) {
 		var timer,
 			timeout = 500,
-			margin = 5,
 			start = new Date();
 
 		timer = new MQ.Timer(timeout, function () {
 			var delta = new Date() - start;
 
-			expect(timeout === delta || delta < timeout + margin).toBeTruthy();
+			expect(timeout <= delta).toBeTruthy();
 			done();
 		});
 		timer.run();
