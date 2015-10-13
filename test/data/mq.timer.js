@@ -20,4 +20,22 @@ describe("The MQ.Timer", function () {
 		});
 		timer.run();
 	});
+
+	it("The method cancel stops the timer", function (done) {
+		var timer,
+			timeout = 50,
+			defused = true;
+
+		timer = new MQ.Timer(timeout, function () {
+			defused = false;
+		});
+
+		timer.run();
+		timer.cancel();
+
+		setTimeout(function () {
+			expect(defused).toBeTruthy();
+			done();
+		}, timeout);
+	});
 });
