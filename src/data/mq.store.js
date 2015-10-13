@@ -147,7 +147,7 @@ MQ.Store = (function (MQ) {
 	 */
 	function remove(store, context, name, handler) {
 		//remove by name
-		if (name !== undefined) {
+		if (name !== undefined && name !== null) {
 			removeByName(store, context, name, handler)
 		} else {
 			removeByContext(store, context);

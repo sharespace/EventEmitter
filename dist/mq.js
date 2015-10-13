@@ -201,7 +201,7 @@ var MQ = (function () {
 	 */
 	function remove(store, context, name, handler) {
 		//remove by name
-		if (name !== undefined) {
+		if (name !== undefined && name !== null) {
 			removeByName(store, context, name, handler)
 		} else {
 			removeByContext(store, context);
@@ -306,21 +306,24 @@ var MQ = (function () {
 		 * Done
 		 * @param {Event} e
 		 */
-		var done = function (e) {
+		handler.eventDoneRuntime = function (e) {
 			handler(window.event || e);
 		};
 
 		// DOM Level 2 browsers
 		if (element.addEventListener) {
-			element.addEventListener(eventType, done, false);
+			//noinspection JSUnresolvedVariable
+			element.addEventListener(eventType, handler.eventDoneRuntime, false);
 			// IE <= 8
 		} else {
 			element = element === window ? document : element;
-			element.attachEvent('on' + eventType, done);
+			//noinspection JSUnresolvedVariable
+			element.attachEvent('on' + eventType, handler.eventDoneRuntime);
 		}
 		//for firefox
 		if (eventType === "mousewheel") {
-			addEvent(element, "DOMMouseScroll", done);
+			//noinspection JSUnresolvedVariable
+			addEvent(element, "DOMMouseScroll", handler.eventDoneRuntime);
 		}
 	}
 
@@ -333,15 +336,18 @@ var MQ = (function () {
 	function removeEvent (element, eventType, handler) {
 		// For all major browsers, except IE 8 and earlier
 		if (element.removeEventListener) {
-			element.removeEventListener(eventType, handler);
+			//noinspection JSUnresolvedVariable
+			element.removeEventListener(eventType, handler.eventDoneRuntime);
 			// For IE 8 and earlier versions
 		} else {
 			element = element === window ? document : element;
-			element.detachEvent('on' + eventType, handler);
+			//noinspection JSUnresolvedVariable
+			element.detachEvent('on' + eventType, handler.eventDoneRuntime);
 		}
 		//for firefox
 		if (eventType === "mousewheel") {
-			removeEvent(element, "DOMMouseScroll", handler);
+			//noinspection JSUnresolvedVariable
+			removeEvent(element, "DOMMouseScroll", handler.eventDoneRuntime);
 		}
 	}
 
