@@ -1,6 +1,8 @@
 MQ.Emitter = (function (MQ) {
 	/** @type {Object}*/
 	var Emitter,
+		debugFilters = [],
+		debugMode = false,
 		store = new MQ.Store();
 
 	//set data
@@ -174,6 +176,30 @@ MQ.Emitter = (function (MQ) {
 
 	}
 
+	/**
+	 * Debug mode reporter
+	 * @param {string} type
+	 * @param {string} eventName
+	 * @param {string} message
+	 * @param {object} data
+	 */
+	function debugReporter(type, eventName, message, data) {
+		//do not debug if not right mode
+		if (!console || !debugMode) {
+			return;
+		}
+		//ignore all events in filter
+		if (debugFilters.indexOf(eventName) >= 0) {
+			return;
+		}
+		//get display fnc
+		if (console[type]) {
+			console[type]("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, data);
+		} else {
+			console.info("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, data);
+		}
+	}
+
 	//PUBLIC INTERFACE
 
 	/**
@@ -204,6 +230,7 @@ MQ.Emitter = (function (MQ) {
 	 * @returns {Emitter}
 	 */
 	Emitter.prototype.event = function (name, params) {
+		debugReporter("debug", name, "Event for '" + name + "' send with parameters ", params);
 		//evaluate
 		store.evaluate(name, params);
 		//return self
@@ -217,6 +244,8 @@ MQ.Emitter = (function (MQ) {
 	 * @returns {MQ.Timer}
 	 */
 	Emitter.prototype.notify = function (name, params) {
+		debugReporter("debug", name, "Notify for '" + name + "' send with parameters ", params);
+		//timer
 		var timer = new MQ.Timer(30, function () {
 			store.evaluate(name, params);
 		});
@@ -234,7 +263,11 @@ MQ.Emitter = (function (MQ) {
 	 */
 	Emitter.prototype.request = function (name, params) {
 		//evaluate and return response
-		return store.request(name, params);
+		var returnValue = store.request(name, params);
+		//reporter
+		debugReporter("debug", name, "Request for '" + name + "' return '" + returnValue + "' for parameters ", params);
+		//return data
+		return returnValue;
 	};
 
 	/**
@@ -338,6 +371,17 @@ MQ.Emitter = (function (MQ) {
 		this.context = context;
 		//return it
 		return this;
+	};
+
+	/**
+	 * Set debug mode on / off
+	 * @param {boolean} state
+	 * @param {Array.<string>} filters
+	 */
+	Emitter.prototype.debugMode = function (state, filters) {
+		debugFilters = filters;
+		debugMode = state;
+		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off"));
 	};
 
 	//noinspection JSUnusedGlobalSymbols
