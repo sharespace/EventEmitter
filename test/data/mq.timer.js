@@ -19,4 +19,42 @@ describe("The MQ.Timer", function () {
 		});
 		timer.run();
 	});
+
+	it("The method cancel stops the timer", function (done) {
+		var timer,
+			timeout = 50,
+			defused = true;
+
+		timer = new MQ.Timer(timeout, function () {
+			defused = false;
+		});
+
+		timer.run();
+		timer.cancel();
+
+		setTimeout(function () {
+			expect(defused).toBeTruthy();
+			done();
+		}, timeout);
+	});
+
+	it("When a timer is not running, the cancel method has no effect", function () {
+		var timer,
+			timeout = 50,
+			callback = function () {};
+
+		timer = new MQ.Timer(timeout, callback);
+
+		expect(function () {
+			timer.cancel();
+		}).not.toThrowError();
+		expect(timer.timeout).toBe(timeout);
+		expect(timer.callback).toEqual(callback);
+	});
+
+	it("A timer provides version", function () {
+		var timer = new MQ.Timer();
+
+		expect(timer.version).toBeDefined();
+	});
 });
