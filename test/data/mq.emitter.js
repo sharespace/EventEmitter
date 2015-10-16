@@ -1,5 +1,17 @@
 describe("The Emitter", function () {
 
+	it("Set the context and returns the instance of the emitter for chaining", function () {
+		var emitter = new MQ.Emitter(),
+			context = {},
+			result;
+
+		expect(function () {
+			result = emitter.in(context);
+		}).not.toThrowError();
+
+		expect(emitter.context).toBe(context);
+		expect(emitter).toBe(result);
+	});
 
 	it("The method 'in' throws an exception for the static emitter", function () {
 		var emitter = new MQ.Emitter(true);
