@@ -1,9 +1,52 @@
 describe("The Emitter", function () {
 
+	/**
+	 * Creates a non-static emitter.
+	 * @return {MQ.Emitter}
+	 */
+	function createEmitter() {
+		return new MQ.Emitter();
+	}
+
+	/**
+	 * Creates a fake event.
+	 * @return {object}
+	 */
+	function createFakeEvent() {
+		return {
+			cancelBubble: false,
+			preventDefault: function () {},
+			stopPropagation: function () {}
+		};
+	}
+
+
+	it("Stop the event propagation on the event interrupt", function () {
+		var emitter = createEmitter(),
+			event = createFakeEvent();
+
+		spyOn(event, "stopPropagation");
+		emitter.interrupt(event, true, true);
+
+		expect(event.stopPropagation).toHaveBeenCalled();
+		expect(event.cancelBubble).toBeTruthy();
+	});
+
+	it("Do not stop the event propagation on the event interrupt", function () {
+		var emitter = createEmitter(),
+			event = createFakeEvent();
+
+		spyOn(event, "stopPropagation");
+		emitter.interrupt(event, false, true);
+
+		expect(event.stopPropagation).not.toHaveBeenCalled();
+		expect(event.cancelBubble).toBeFalsy();
+	});
+
 	it("Set the context and returns the instance of the emitter for chaining", function () {
-		var emitter = new MQ.Emitter(),
+		var emitter = createEmitter(),
 			context = {},
-			result;
+			result = null;
 
 		expect(function () {
 			result = emitter.in(context);
@@ -22,7 +65,7 @@ describe("The Emitter", function () {
 	});
 
 	it("Enable debug mode", function () {
-		var emitter = new MQ.Emitter();
+		var emitter = createEmitter();
 
 		spyOn(console, "info");
 		emitter.debugMode(true, []);
@@ -30,7 +73,7 @@ describe("The Emitter", function () {
 	});
 
 	it ("Disable debug mode", function () {
-		var emitter = new MQ.Emitter();
+		var emitter = createEmitter();
 
 		spyOn(console, "info");
 		emitter.debugMode(false, []);
@@ -38,7 +81,7 @@ describe("The Emitter", function () {
 	});
 
 	it("An emitter provides version", function () {
-		var emitter = new MQ.Emitter();
+		var emitter = createEmitter();
 
 		expect(emitter.version).toBeDefined();
 	});
