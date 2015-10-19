@@ -43,6 +43,27 @@ describe("The Emitter", function () {
 		expect(event.cancelBubble).toBeFalsy();
 	});
 
+	it("Prevent default on the event interrupt", function () {
+		var emitter = createEmitter(),
+			event = createFakeEvent();
+
+		spyOn(event, "preventDefault");
+		emitter.interrupt(event, true, true);
+
+		expect(event.preventDefault).toHaveBeenCalled();
+		expect(event.returnValue).toBe(false);
+	});
+
+	it("Do not prevent default on the event interrupt", function () {
+		var emitter = createEmitter(),
+			event = createFakeEvent();
+
+		spyOn(event, "preventDefault");
+		emitter.interrupt(event, true, false);
+
+		expect(event.preventDefault).not.toHaveBeenCalled();
+	});
+
 	it("Set the context and returns the instance of the emitter for chaining", function () {
 		var emitter = createEmitter(),
 			context = {},
