@@ -40,7 +40,13 @@ describe("The Emitter", function () {
 		expect(emitter.context).toBe(context);
 	});
 
+	it("The method 'event' returns the emitter for chaining", function () {
+		var emitter = createEmitter(),
+			result;
 
+		result = emitter.event("test", null);
+		expect(result).toBe(emitter);
+	});
 
 	it("Stop the event propagation on the event interrupt", function () {
 		var emitter = createEmitter(),
