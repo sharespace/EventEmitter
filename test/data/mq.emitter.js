@@ -9,6 +9,14 @@ describe("The Emitter", function () {
 	}
 
 	/**
+	 * Returns a static emitter.
+	 * @return {MQ.Emitter}
+	 */
+	function createStaticEmitter() {
+		return new MQ.Emitter(true);
+	}
+
+	/**
 	 * Creates a fake event.
 	 * @return {object}
 	 */
@@ -19,6 +27,19 @@ describe("The Emitter", function () {
 			stopPropagation: function () {}
 		};
 	}
+
+	it("Creates a new emitter with the context", function () {
+		var staticEmitter = createStaticEmitter(),
+			context = {},
+			emitter;
+
+		emitter = staticEmitter.create(context);
+
+		expect(emitter.constructor).toBe(MQ.Emitter);
+		expect(emitter).not.toBe(staticEmitter);
+		expect(emitter.context).toBe(context);
+	});
+
 
 
 	it("Stop the event propagation on the event interrupt", function () {
