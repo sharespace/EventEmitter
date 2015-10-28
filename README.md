@@ -7,3 +7,6 @@ Message queue for events.
 
 Download and install [NodeJs](https://nodejs.org/en/)
 Run command `npm install`
+
+### How to use it
+
