@@ -65,3 +65,65 @@ You can turn on debug mode and filter some specific events. Other events will be
 
 You can use this library in global way. There is global variable `EventEmitter`. 
 
+#### Example 1
+
+```javascript
+EventEmitter.subscribe("MyEvent", function (data) {
+    console.log("You handler for event");
+});
+EventEmitter.event("MyEvent");
+EventEmitter.event("MyEvent", [true, "param2"]);
+```
+
+In this example you can see basic usages of emitter. You can subscribe for event and call event with or without parameters.
+But there are two main problems. You can not destroy this handler for MyEvent, because you don't have original handler and also 
+you don't have context, so in handler is invalid pointer on `this`. We can make modification for first problem.
+
+#### Example 1 - first problem solve
+
+```javascript
+var handler = function (data) {
+  console.log("You handler for event");
+};
+EventEmitter.subscribe("MyEvent", handler);
+EventEmitter.event("MyEvent");
+EventEmitter.event("MyEvent", [true, "param2"]);
+EventEmitter.unsubscribe("MyEvent", handler);
+```
+
+So now we can unsubscribe our event. Now we must solve the second problem. Context.
+
+#### Example 1 - second problem solve
+
+```javascript
+var emitter,
+    context = {},
+    handler = function (data) {
+  console.log("You handler for event wit context from 'context' variable.");
+};
+emitter = EventEmitter.create(context);
+emitter.subscribe("MyEvent", handler);
+emitter.event("MyEvent");
+emitter.event("MyEvent", [true, "param2"]);
+emitter.unsubscribe("MyEvent", handler);
+```
+
+Now we have solve second problem. This is the recommended use of EventEmitter. In every file create new instance with
+this as a context. If you implemented destroy on object, you can call `emitter.unsubscribe()` and all handlers for context
+will be destroyed. So we can update last example for complete clean all events.
+
+#### Example 2
+
+```javascript
+var emitter,
+    context = {},
+    handler = function (data) {
+  console.log("You handler for event wit context from 'context' variable.");
+};
+emitter = EventEmitter.create(context);
+emitter.subscribe("MyEvent", handler);
+emitter.subscribe("MyEventSecond", handler);
+emitter.event("MyEvent");
+emitter.event("MyEvent", [true, "param2"]);
+emitter.unsubscribe();
+```
