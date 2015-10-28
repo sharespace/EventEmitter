@@ -99,7 +99,7 @@ So now we can unsubscribe our event. Now we must solve the second problem. Conte
 var emitter,
     context = {},
     handler = function (data) {
-  console.log("You handler for event wit context from 'context' variable.");
+  console.log("You handler for event with context from 'context' variable.");
 };
 emitter = EventEmitter.create(context);
 emitter.subscribe("MyEvent", handler);
@@ -109,7 +109,7 @@ emitter.unsubscribe("MyEvent", handler);
 ```
 
 Now we have solve second problem. This is the recommended use of EventEmitter. In every file create new instance with
-this as a context. If you implemented destroy on object, you can call `emitter.unsubscribe()` and all handlers for context
+`this` as a context. If you implemented destroy on object, you can call `emitter.unsubscribe()` and all handlers for context
 will be destroyed. So we can update last example for complete clean all events.
 
 #### Example 2
@@ -126,4 +126,21 @@ emitter.subscribe("MyEventSecond", handler);
 emitter.event("MyEvent");
 emitter.event("MyEvent", [true, "param2"]);
 emitter.unsubscribe();
+```
+
+And last part is binding to DOM elements. It's easy like others thing before.
+
+
+#### Example 3
+
+```javascript
+var emitter,
+    context = {},
+    handler = function (data) {
+  console.log("Clicked on body and destroy.");
+  emitter.unsubscribe();
+  //emitter.unsubscribe(document.body, "click", handler);
+};
+emitter = EventEmitter.create(context);
+emitter.subscribe(document.body, "click", handler);
 ```
