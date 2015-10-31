@@ -1,4 +1,7 @@
+/*global console, MQ*/
 MQ.Emitter = (function (MQ) {
+	"use strict";
+
 	/** @type {Object}*/
 	var Emitter,
 		debugFilters = [],
@@ -87,7 +90,9 @@ MQ.Emitter = (function (MQ) {
 	 */
 	function cancelDefault (e) {
 		var evt = e ? e:window.event;
-		if (evt.preventDefault) evt.preventDefault();
+		if (evt.preventDefault) {
+			evt.preventDefault();
+		}
 		evt.returnValue = false;
 		return false;
 	}
@@ -110,11 +115,11 @@ MQ.Emitter = (function (MQ) {
 				name: nameOrElement,
 				handler: nameOrHandler,
 				params: paramsOrUndefined || []
-			}
+			};
 		}
 
 		//type 2
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType == 1,
+		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
 			isDocument = nameOrElement === document,
 			isWindow = nameOrElement === window;
 		//check
@@ -125,7 +130,7 @@ MQ.Emitter = (function (MQ) {
 				name: nameOrHandler,
 				handler: handler,
 				params: paramsOrUndefined || []
-			}
+			};
 		}
 
 		//error
@@ -147,7 +152,7 @@ MQ.Emitter = (function (MQ) {
 				element: null,
 				name: null,
 				handler: null
-			}
+			};
 		}
 
 		//type 2
@@ -157,11 +162,11 @@ MQ.Emitter = (function (MQ) {
 				element: null,
 				name: nameOrElement,
 				handler: nameOrHandler
-			}
+			};
 		}
 
 		//type 3
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType == 1,
+		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
 			isDocument = nameOrElement === document,
 			isWindow = nameOrElement === window;
 		//check
@@ -171,7 +176,7 @@ MQ.Emitter = (function (MQ) {
 				element: nameOrElement,
 				name: nameOrHandler,
 				handler: handler
-			}
+			};
 		}
 
 	}

@@ -1,4 +1,6 @@
+/*global MQ*/
 describe("The MQ.Timer", function () {
+	"use strict";
 
 	it("If a timeout is not set, the default value 30 ms will be used", function () {
 		var timer = new MQ.Timer();

@@ -1,5 +1,6 @@
-//tests
+/*global MQ, EventEmitter*/
 describe("MQ - base", function () {
+	"use strict";
 
     it("create new emitter with context", function () {
         var context = {},

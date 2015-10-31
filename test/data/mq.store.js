@@ -1,4 +1,7 @@
+/*global MQ*/
 describe("The MQ.Store", function () {
+    "use strict";
+
     var count = 0,
         handler;
 
@@ -9,7 +12,7 @@ describe("The MQ.Store", function () {
                 count++;
                 return count;
             }
-        }
+        };
     });
 
     it("Create storage record and evaluate, then remove", function () {

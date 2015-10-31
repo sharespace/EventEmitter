@@ -1,4 +1,7 @@
+/*global MQ*/
 MQ.Timer = (function (MQ) {
+	"use strict";
+	
     /** @type {Object}*/
     var Timer;
 

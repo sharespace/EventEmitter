@@ -1,4 +1,7 @@
+/*global console, MQ*/
 MQ.Store = (function (MQ) {
+	"use strict";
+
 	/** @type {Object}*/
 	var Store,
 		StoreRecord;
@@ -94,7 +97,7 @@ MQ.Store = (function (MQ) {
 				//record
 				record = data[i];
 				//remove right context and right handler
-				if (handler && record.context === context && record.handler == handler) {
+				if (handler && record.context === context && record.handler === handler) {
 					data.splice(i, 1);
 				}
 				//remove right context
@@ -148,7 +151,7 @@ MQ.Store = (function (MQ) {
 	function remove(store, context, name, handler) {
 		//remove by name
 		if (name !== undefined && name !== null) {
-			removeByName(store, context, name, handler)
+			removeByName(store, context, name, handler);
 		} else {
 			removeByContext(store, context);
 		}
