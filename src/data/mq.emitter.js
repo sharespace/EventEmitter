@@ -1,5 +1,5 @@
 /*global console, MQ*/
-MQ.Emitter = (function (MQ) {
+MQ.Emitter = (function (MQ, p) {
 	"use strict";
 
 	/** @type {Object}*/
@@ -219,12 +219,15 @@ MQ.Emitter = (function (MQ) {
 		this.isStatic = isStatic || false;
 	};
 
+	//shortcut
+	p = Emitter.prototype;
+
 	/**
 	 * Create new
 	 * @param {Object} context
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.create = function (context) {
+	p.create = function (context) {
 		return new MQ.Emitter().in(context);
 	};
 
@@ -234,7 +237,7 @@ MQ.Emitter = (function (MQ) {
 	 * @param {Object} params
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.event = function (name, params) {
+	p.event = function (name, params) {
 		debugReporter("debug", name, "Event for '" + name + "' send with parameters ", params);
 		//evaluate
 		store.evaluate(name, params);
@@ -248,7 +251,7 @@ MQ.Emitter = (function (MQ) {
 	 * @param {Object} params
 	 * @returns {MQ.Timer}
 	 */
-	Emitter.prototype.notify = function (name, params) {
+	p.notify = function (name, params) {
 		debugReporter("debug", name, "Notify for '" + name + "' send with parameters ", params);
 		//timer
 		var timer = new MQ.Timer(30, function () {
@@ -266,7 +269,7 @@ MQ.Emitter = (function (MQ) {
 	 * @param {Object} params
 	 * @return {Object}
 	 */
-	Emitter.prototype.request = function (name, params) {
+	p.request = function (name, params) {
 		//evaluate and return response
 		var returnValue = store.request(name, params);
 		//reporter
@@ -283,29 +286,20 @@ MQ.Emitter = (function (MQ) {
 	 * @param {Array.<Object>=} paramsOrUndefined
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
-		var name,
-			element,
-			handler,
-			context = this.context,
+	p.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
+		var context = this.context,
 			data = normalizeSubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined);
-
-		//data get
-		element = data.element;
-		name = data.name;
-		handler = data.handler;
-
 		//for element
-		if (element) {
+		if (data.element) {
 			//add event
-			handler.eventHandlerRuntime = function (event) {
-				handler.apply(context, [[event].concat(data.params)]);
+			data.handler.eventHandlerRuntime = function (event) {
+				data.handler.apply(context, [[event].concat(data.params)]);
 			};
-			addEvent(element, name, handler.eventHandlerRuntime);
+			addEvent(data.element, data.name, data.handler.eventHandlerRuntime);
 		//no element event
 		} else {
 			//save to storage
-			store.save(this.context, name, handler);
+			store.save(this.context, data.name, data.handler);
 		}
 		//return self
 		return this;
@@ -318,29 +312,20 @@ MQ.Emitter = (function (MQ) {
 	 * @param {function=} handlerOrUndefined
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
-		var name,
-			element,
-			handler,
-			data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
-
-		//data get
-		element = data.element;
-		name = data.name;
-		handler = data.handler;
-
+	p.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
+		var data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
 		//this is weird
-		if (this.context === MQ._default && !name && !handler) {
+		if (this.context === MQ._default && !data.name && !data.handler) {
 			console.warn('EventEmitter: You are calling unsubscribe method without parameters. This is unbind all event through application!');
 		}
 
-		if (element) {
+		if (data.element) {
 			//remove event
-			removeEvent(element, name, handler.eventHandlerRuntime);
+			removeEvent(data.element, data.name, data.handler.eventHandlerRuntime);
 		//no element event
 		} else {
 			//remove from storage
-			store.remove(this.context, name, handler);
+			store.remove(this.context, data.name, data.handler);
 		}
 		//return self
 		return this;
@@ -352,7 +337,7 @@ MQ.Emitter = (function (MQ) {
 	 * @param {boolean} stopProp Stop propagation
 	 * @param {boolean} cancelDef Cancel default
 	 */
-	Emitter.prototype.interrupt = function (event, stopProp, cancelDef) {
+	p.interrupt = function (event, stopProp, cancelDef) {
 		if (stopProp) {
 			stopPropagation(event);
 		}
@@ -366,7 +351,7 @@ MQ.Emitter = (function (MQ) {
 	 * @param {Object} context
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.in = function (context) {
+	p.in = function (context) {
 		var isStatic = this.isStatic;
 		//static
 		if (isStatic) {
@@ -383,14 +368,14 @@ MQ.Emitter = (function (MQ) {
 	 * @param {boolean} state
 	 * @param {Array.<string>} filters
 	 */
-	Emitter.prototype.debugMode = function (state, filters) {
+	p.debugMode = function (state, filters) {
 		debugFilters = filters;
 		debugMode = state;
 		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off"));
 	};
 
 	//noinspection JSUnusedGlobalSymbols
-	Emitter.prototype.version = "1.0";
+	p.version = "1.0";
 	//return event
 	return Emitter;
 
