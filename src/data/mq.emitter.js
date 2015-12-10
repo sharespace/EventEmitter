@@ -3,10 +3,19 @@ MQ.Emitter = (function (MQ, p) {
 	"use strict";
 
 	/** @type {Object}*/
-	var Emitter,
+	var timer,
+		Emitter,
+		/** @type {Array.<NotifyQueueItem>}*/
+		notifyQueue = [],
 		debugFilters = [],
 		debugMode = false,
 		store = new MQ.Store();
+
+	/**
+	 * @typedef {Object} NotifyQueueItem
+	 * @property {string} name
+	 * @property {Object} params
+	 */
 
 	//set data
 	/**
@@ -205,6 +214,18 @@ MQ.Emitter = (function (MQ, p) {
 		}
 	}
 
+	/**
+	 * Run queue
+	 */
+	function runQueue() {
+		var queue;
+		//run
+		while(notifyQueue.length) {
+			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
+			store.evaluate(queue.name, queue.params);
+		}
+	}
+
 	//PUBLIC INTERFACE
 
 	/**
@@ -252,15 +273,27 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {MQ.Timer}
 	 */
 	p.notify = function (name, params) {
+		var queue = /** @type {NotifyQueueItem}*/{};
+		//reporter
 		debugReporter("debug", name, "Notify for '" + name + "' send with parameters ", params);
-		//timer
-		var timer = new MQ.Timer(30, function () {
-			store.evaluate(name, params);
-		});
-		//run
-		timer.run();
+		//name, params
+		queue.name = name;
+		queue.params = params;
+		//save queue
+		notifyQueue.push(queue);
+		//timer not exists, run it
+		if (!timer) {
+			//timer
+			timer = new MQ.Timer(30, function () {
+				runQueue();
+				timer.cancel();
+				timer = null;
+			});
+			//run
+			timer.run();
+		}
 		//return timer
-		return timer;
+		return /** @type {MQ.Timer}*/timer;
 	};
 
 	/**
