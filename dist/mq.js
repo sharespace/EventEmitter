@@ -731,7 +731,7 @@ MQ.Emitter = (function (MQ, p) {
 
 	/**
 	 * Interrupt
-	 * @param {event} event
+	 * @param {Event} event
 	 * @param {boolean} stopProp Stop propagation
 	 * @param {boolean} cancelDef Cancel default
 	 */
