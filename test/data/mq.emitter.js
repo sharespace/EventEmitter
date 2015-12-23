@@ -1,4 +1,6 @@
+/*global console, MQ*/
 describe("The Emitter", function () {
+	"use strict";
 
 	/**
 	 * Creates a non-static emitter.

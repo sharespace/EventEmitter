@@ -1,7 +1,7 @@
-var MQ = (function () {
+var MQ = {};;/*global MQ*/
+MQ.Timer = (function (MQ, p) {
 	"use strict";
-	return {};
-}());;MQ.Timer = (function (MQ) {
+	
     /** @type {Object}*/
     var Timer;
 
@@ -20,10 +20,13 @@ var MQ = (function () {
         this.callback = callback;
     };
 
+    //shortcut
+    p = Timer.prototype;
+
     /**
      * Run
      */
-    Timer.prototype.run = function () {
+    p.run = function () {
         var self = this,
             handler = this.callback;
         //already running
@@ -40,7 +43,7 @@ var MQ = (function () {
     /**
      * Cancel
      */
-    Timer.prototype.cancel = function () {
+    p.cancel = function () {
         //already running
         if (this.timer) {
             clearTimeout(this.timer);
@@ -49,10 +52,13 @@ var MQ = (function () {
     };
 
     //noinspection JSUnusedGlobalSymbols
-    Timer.prototype.version = "1.0";
+    p.version = "1.0";
     return Timer;
 
-}(MQ));;MQ.Store = (function (MQ) {
+}(MQ));;/*global console, MQ*/
+MQ.Store = (function (MQ, p) {
+	"use strict";
+
 	/** @type {Object}*/
 	var Store,
 		StoreRecord;
@@ -148,7 +154,7 @@ var MQ = (function () {
 				//record
 				record = data[i];
 				//remove right context and right handler
-				if (handler && record.context === context && record.handler == handler) {
+				if (handler && record.context === context && record.handler === handler) {
 					data.splice(i, 1);
 				}
 				//remove right context
@@ -202,7 +208,7 @@ var MQ = (function () {
 	function remove(store, context, name, handler) {
 		//remove by name
 		if (name !== undefined && name !== null) {
-			removeByName(store, context, name, handler)
+			removeByName(store, context, name, handler);
 		} else {
 			removeByContext(store, context);
 		}
@@ -228,13 +234,16 @@ var MQ = (function () {
 		this.store = {};
 	};
 
+	//shortcut
+	p = Store.prototype;
+
 	/**
 	 * Save
 	 * @param {Object} context
 	 * @param {string} name
 	 * @param {function} handler
 	 */
-	Store.prototype.save = function (context, name, handler) {
+	p.save = function (context, name, handler) {
 		//normalize
 		name = name.toLowerCase();
 		//get store
@@ -247,7 +256,7 @@ var MQ = (function () {
 	 * @param {string=} name
 	 * @param {function=} handler
 	 */
-	Store.prototype.remove = function (context, name, handler) {
+	p.remove = function (context, name, handler) {
 		//normalize
 		name = name ? name.toLowerCase() : name;
 		//get store
@@ -259,7 +268,7 @@ var MQ = (function () {
 	 * @param {string} name
 	 * @param {Object} params
 	 */
-	Store.prototype.evaluate = function (name, params) {
+	p.evaluate = function (name, params) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
@@ -272,7 +281,7 @@ var MQ = (function () {
 	 * @param {Object} params
 	 * @return {Object}
 	 */
-	Store.prototype.request = function (name, params) {
+	p.request = function (name, params) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
@@ -280,18 +289,30 @@ var MQ = (function () {
 	};
 
 	//noinspection JSUnusedGlobalSymbols
-	Store.prototype.version = "1.0";
+	p.version = "1.0";
 	return Store;
 
-}(MQ));;MQ.Emitter = (function (MQ) {
+}(MQ));;/*global console, MQ*/
+MQ.Emitter = (function (MQ, p) {
+	"use strict";
+
 	/** @type {Object}*/
-	var Emitter,
+	var timer,
+		Emitter,
+		/** @type {Array.<NotifyQueueItem>}*/
+		notifyQueue = [],
 		debugFilters = [],
 		debugMode = false,
 		store = new MQ.Store(),
 		//triple click data
 		clickCount = 0,
 		clickStart = 0;
+
+	/**
+	 * @typedef {Object} NotifyQueueItem
+	 * @property {string} name
+	 * @property {Object} params
+	 */
 
 	//set data
 	/**
@@ -443,7 +464,9 @@ var MQ = (function () {
 	 */
 	function cancelDefault (e) {
 		var evt = e ? e:window.event;
-		if (evt.preventDefault) evt.preventDefault();
+		if (evt.preventDefault) {
+			evt.preventDefault();
+		}
 		evt.returnValue = false;
 		return false;
 	}
@@ -466,11 +489,11 @@ var MQ = (function () {
 				name: nameOrElement,
 				handler: nameOrHandler,
 				params: paramsOrUndefined || []
-			}
+			};
 		}
 
 		//type 2
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType == 1,
+		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
 			isDocument = nameOrElement === document,
 			isWindow = nameOrElement === window;
 		//check
@@ -481,7 +504,7 @@ var MQ = (function () {
 				name: nameOrHandler,
 				handler: handler,
 				params: paramsOrUndefined || []
-			}
+			};
 		}
 
 		//error
@@ -503,7 +526,7 @@ var MQ = (function () {
 				element: null,
 				name: null,
 				handler: null
-			}
+			};
 		}
 
 		//type 2
@@ -513,11 +536,11 @@ var MQ = (function () {
 				element: null,
 				name: nameOrElement,
 				handler: nameOrHandler
-			}
+			};
 		}
 
 		//type 3
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType == 1,
+		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
 			isDocument = nameOrElement === document,
 			isWindow = nameOrElement === window;
 		//check
@@ -527,7 +550,7 @@ var MQ = (function () {
 				element: nameOrElement,
 				name: nameOrHandler,
 				handler: handler
-			}
+			};
 		}
 
 	}
@@ -556,6 +579,18 @@ var MQ = (function () {
 		}
 	}
 
+	/**
+	 * Run queue
+	 */
+	function runQueue() {
+		var queue;
+		//run
+		while(notifyQueue.length) {
+			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
+			store.evaluate(queue.name, queue.params);
+		}
+	}
+
 	//PUBLIC INTERFACE
 
 	/**
@@ -570,12 +605,15 @@ var MQ = (function () {
 		this.isStatic = isStatic || false;
 	};
 
+	//shortcut
+	p = Emitter.prototype;
+
 	/**
 	 * Create new
 	 * @param {Object} context
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.create = function (context) {
+	p.create = function (context) {
 		return new MQ.Emitter().in(context);
 	};
 
@@ -585,7 +623,7 @@ var MQ = (function () {
 	 * @param {Object} params
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.event = function (name, params) {
+	p.event = function (name, params) {
 		debugReporter("debug", name, "Event for '" + name + "' send with parameters ", params);
 		//evaluate
 		store.evaluate(name, params);
@@ -599,16 +637,28 @@ var MQ = (function () {
 	 * @param {Object} params
 	 * @returns {MQ.Timer}
 	 */
-	Emitter.prototype.notify = function (name, params) {
+	p.notify = function (name, params) {
+		var queue = /** @type {NotifyQueueItem}*/{};
+		//reporter
 		debugReporter("debug", name, "Notify for '" + name + "' send with parameters ", params);
-		//timer
-		var timer = new MQ.Timer(30, function () {
-			store.evaluate(name, params);
-		});
-		//run
-		timer.run();
+		//name, params
+		queue.name = name;
+		queue.params = params;
+		//save queue
+		notifyQueue.push(queue);
+		//timer not exists, run it
+		if (!timer) {
+			//timer
+			timer = new MQ.Timer(30, function () {
+				runQueue();
+				timer.cancel();
+				timer = null;
+			});
+			//run
+			timer.run();
+		}
 		//return timer
-		return timer;
+		return /** @type {MQ.Timer}*/timer;
 	};
 
 	/**
@@ -617,7 +667,7 @@ var MQ = (function () {
 	 * @param {Object} params
 	 * @return {Object}
 	 */
-	Emitter.prototype.request = function (name, params) {
+	p.request = function (name, params) {
 		//evaluate and return response
 		var returnValue = store.request(name, params);
 		//reporter
@@ -634,29 +684,20 @@ var MQ = (function () {
 	 * @param {Array.<Object>=} paramsOrUndefined
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
-		var name,
-			element,
-			handler,
-			context = this.context,
+	p.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
+		var context = this.context,
 			data = normalizeSubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined);
-
-		//data get
-		element = data.element;
-		name = data.name;
-		handler = data.handler;
-
 		//for element
-		if (element) {
+		if (data.element) {
 			//add event
-			handler.eventHandlerRuntime = function (event) {
-				handler.apply(context, [[event].concat(data.params)]);
+			data.handler.eventHandlerRuntime = function (event) {
+				data.handler.apply(context, [[event].concat(data.params)]);
 			};
-			addEvent(element, name, handler.eventHandlerRuntime);
+			addEvent(data.element, data.name, data.handler.eventHandlerRuntime);
 		//no element event
 		} else {
 			//save to storage
-			store.save(this.context, name, handler);
+			store.save(this.context, data.name, data.handler);
 		}
 		//return self
 		return this;
@@ -669,29 +710,20 @@ var MQ = (function () {
 	 * @param {function=} handlerOrUndefined
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
-		var name,
-			element,
-			handler,
-			data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
-
-		//data get
-		element = data.element;
-		name = data.name;
-		handler = data.handler;
-
+	p.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
+		var data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
 		//this is weird
-		if (this.context === MQ._default && !name && !handler) {
+		if (this.context === MQ._default && !data.name && !data.handler) {
 			console.warn('EventEmitter: You are calling unsubscribe method without parameters. This is unbind all event through application!');
 		}
 
-		if (element) {
+		if (data.element) {
 			//remove event
-			removeEvent(element, name, handler.eventHandlerRuntime);
+			removeEvent(data.element, data.name, data.handler.eventHandlerRuntime);
 		//no element event
 		} else {
 			//remove from storage
-			store.remove(this.context, name, handler);
+			store.remove(this.context, data.name, data.handler);
 		}
 		//return self
 		return this;
@@ -703,7 +735,7 @@ var MQ = (function () {
 	 * @param {boolean} stopProp Stop propagation
 	 * @param {boolean} cancelDef Cancel default
 	 */
-	Emitter.prototype.interrupt = function (event, stopProp, cancelDef) {
+	p.interrupt = function (event, stopProp, cancelDef) {
 		if (stopProp) {
 			stopPropagation(event);
 		}
@@ -717,7 +749,7 @@ var MQ = (function () {
 	 * @param {Object} context
 	 * @returns {Emitter}
 	 */
-	Emitter.prototype.in = function (context) {
+	p.in = function (context) {
 		var isStatic = this.isStatic;
 		//static
 		if (isStatic) {
@@ -734,16 +766,17 @@ var MQ = (function () {
 	 * @param {boolean} state
 	 * @param {Array.<string>} filters
 	 */
-	Emitter.prototype.debugMode = function (state, filters) {
+	p.debugMode = function (state, filters) {
 		debugFilters = filters;
 		debugMode = state;
 		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off"));
 	};
 
 	//noinspection JSUnusedGlobalSymbols
-	Emitter.prototype.version = "1.0";
+	p.version = "1.0";
 	//return event
 	return Emitter;
 
-}(MQ));;//EventEmitter create
+}(MQ));;/*global MQ*/
+//EventEmitter create
 var EventEmitter = new MQ.Emitter(true);

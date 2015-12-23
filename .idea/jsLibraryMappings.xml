@@ -3,6 +3,6 @@
   <component name="JavaScriptLibraryMappings">
     <file url="file://$PROJECT_DIR$" libraries="{EventEmitter node_modules}" />
     <file url="file://$PROJECT_DIR$/Gruntfile.js" libraries="{Node.js Globals}" />
-    <file url="PROJECT" libraries="{Jasmine}" />
+    <file url="PROJECT" libraries="{EventEmitter node_modules}" />
   </component>
 </project>

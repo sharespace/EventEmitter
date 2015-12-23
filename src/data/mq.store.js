@@ -1,4 +1,7 @@
-MQ.Store = (function (MQ) {
+/*global console, MQ*/
+MQ.Store = (function (MQ, p) {
+	"use strict";
+
 	/** @type {Object}*/
 	var Store,
 		StoreRecord;
@@ -94,7 +97,7 @@ MQ.Store = (function (MQ) {
 				//record
 				record = data[i];
 				//remove right context and right handler
-				if (handler && record.context === context && record.handler == handler) {
+				if (handler && record.context === context && record.handler === handler) {
 					data.splice(i, 1);
 				}
 				//remove right context
@@ -148,7 +151,7 @@ MQ.Store = (function (MQ) {
 	function remove(store, context, name, handler) {
 		//remove by name
 		if (name !== undefined && name !== null) {
-			removeByName(store, context, name, handler)
+			removeByName(store, context, name, handler);
 		} else {
 			removeByContext(store, context);
 		}
@@ -174,13 +177,16 @@ MQ.Store = (function (MQ) {
 		this.store = {};
 	};
 
+	//shortcut
+	p = Store.prototype;
+
 	/**
 	 * Save
 	 * @param {Object} context
 	 * @param {string} name
 	 * @param {function} handler
 	 */
-	Store.prototype.save = function (context, name, handler) {
+	p.save = function (context, name, handler) {
 		//normalize
 		name = name.toLowerCase();
 		//get store
@@ -193,7 +199,7 @@ MQ.Store = (function (MQ) {
 	 * @param {string=} name
 	 * @param {function=} handler
 	 */
-	Store.prototype.remove = function (context, name, handler) {
+	p.remove = function (context, name, handler) {
 		//normalize
 		name = name ? name.toLowerCase() : name;
 		//get store
@@ -205,7 +211,7 @@ MQ.Store = (function (MQ) {
 	 * @param {string} name
 	 * @param {Object} params
 	 */
-	Store.prototype.evaluate = function (name, params) {
+	p.evaluate = function (name, params) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
@@ -218,7 +224,7 @@ MQ.Store = (function (MQ) {
 	 * @param {Object} params
 	 * @return {Object}
 	 */
-	Store.prototype.request = function (name, params) {
+	p.request = function (name, params) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
@@ -226,7 +232,7 @@ MQ.Store = (function (MQ) {
 	};
 
 	//noinspection JSUnusedGlobalSymbols
-	Store.prototype.version = "1.0";
+	p.version = "1.0";
 	return Store;
 
 }(MQ));

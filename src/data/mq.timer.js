@@ -1,4 +1,7 @@
-MQ.Timer = (function (MQ) {
+/*global MQ*/
+MQ.Timer = (function (MQ, p) {
+	"use strict";
+	
     /** @type {Object}*/
     var Timer;
 
@@ -17,10 +20,13 @@ MQ.Timer = (function (MQ) {
         this.callback = callback;
     };
 
+    //shortcut
+    p = Timer.prototype;
+
     /**
      * Run
      */
-    Timer.prototype.run = function () {
+    p.run = function () {
         var self = this,
             handler = this.callback;
         //already running
@@ -37,7 +43,7 @@ MQ.Timer = (function (MQ) {
     /**
      * Cancel
      */
-    Timer.prototype.cancel = function () {
+    p.cancel = function () {
         //already running
         if (this.timer) {
             clearTimeout(this.timer);
@@ -46,7 +52,7 @@ MQ.Timer = (function (MQ) {
     };
 
     //noinspection JSUnusedGlobalSymbols
-    Timer.prototype.version = "1.0";
+    p.version = "1.0";
     return Timer;
 
 }(MQ));
