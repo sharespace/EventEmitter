@@ -288,7 +288,10 @@ var MQ = (function () {
 	var Emitter,
 		debugFilters = [],
 		debugMode = false,
-		store = new MQ.Store();
+		store = new MQ.Store(),
+		//triple click data
+		clickCount = 0,
+		clickStart = 0;
 
 	//set data
 	/**
@@ -304,6 +307,12 @@ var MQ = (function () {
 	 * @param {function} handler
 	 */
 	function addEvent (element, eventType, handler) {
+		//tripleclick
+		if (eventType === "tripleclick") {
+			addTripleClick(element, handler);
+			return;
+		}
+
 		/**
 		 * Done
 		 * @param {Event} e
@@ -336,6 +345,11 @@ var MQ = (function () {
 	 * @param {function} handler
 	 */
 	function removeEvent (element, eventType, handler) {
+		//tripleclick
+		if (eventType === "tripleclick") {
+			removeTripleClick(element, handler);
+			return;
+		}
 		// For all major browsers, except IE 8 and earlier
 		if (element.removeEventListener) {
 			//noinspection JSUnresolvedVariable
@@ -351,6 +365,63 @@ var MQ = (function () {
 			//noinspection JSUnresolvedVariable
 			removeEvent(element, "DOMMouseScroll", handler.eventDoneRuntime);
 		}
+	}
+
+	/**
+	 * Add triple click
+	 * @param {Element} el
+	 * @param {Function} handler
+	 */
+	function addTripleClick (el, handler) {
+		/**
+		 * Triple click dblclick handler
+		 * @param {Event} event
+		 */
+		handler.tripleDblClickHandler = function (event) {
+			if (!document.body.addEventListener) {
+				//noinspection JSUnresolvedFunction
+				handler.tripleClickHandler(event || window.event);
+			}
+		};
+		/**
+		 * Triple click click handler
+		 * @param {Event} event
+		 */
+		handler.tripleClickHandler = function (event) {
+			//event convert
+			event = event || window.event;
+			//check date
+			if (clickStart > (new Date()).getTime() - 700) {
+				clickCount += 1;
+				if (clickCount === 3) {
+					clickCount = 0;
+					handler(event);
+				}
+			} else {
+				clickCount = 1;
+				clickStart = 0;
+			}
+			//click start
+			if (!clickStart) {
+				clickStart = new Date().getTime();
+			}
+		};
+		//noinspection JSUnresolvedVariable
+		addEvent(el, "click", handler.tripleClickHandler);
+		//noinspection JSUnresolvedVariable
+		addEvent(el, "dblclick", handler.tripleDblClickHandler);
+	}
+
+	/**
+	 * Remove triple click
+	 * @param {Element} el
+	 * @param {Function} handler
+	 */
+	function removeTripleClick (el, handler) {
+		//noinspection JSUnresolvedVariable
+		removeEvent(el, "click", handler.tripleClickHandler);
+		//noinspection JSUnresolvedVariable
+		removeEvent(el, "dblclick", handler.tripleDblClickHandler);
 	}
 
 	/**

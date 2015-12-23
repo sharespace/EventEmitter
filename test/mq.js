@@ -156,4 +156,43 @@ describe("MQ - base", function () {
         expect(counter).toBe(1);
     });
 
+    it("bind triple click", function () {
+        var dom,
+            handler,
+            counter = 0,
+            context = {},
+            emitter = EventEmitter.create(context);
+
+        handler = function (event) {
+            counter++;
+            emitter.interrupt(event[0], true, true);
+            expect(event[0].defaultPrevented).toBe(true);
+            expect(event[0].returnValue).toBe(false);
+        };
+
+        dom = document.createElement('div');
+        emitter.subscribe(dom, "tripleclick", handler);
+
+        simulateClick(dom, "click", dom);
+        simulateClick(dom, "click", dom);
+        expect(counter).toBe(0);
+
+        simulateClick(dom, "click", dom);
+        expect(counter).toBe(1);
+
+        simulateClick(dom, "click", dom);
+        simulateClick(dom, "click", dom);
+        expect(counter).toBe(1);
+
+        simulateClick(dom, "click", dom);
+        expect(counter).toBe(2);
+
+        emitter.unsubscribe(dom, "tripleclick", handler);
+
+        simulateClick(dom, "click", dom);
+        simulateClick(dom, "click", dom);
+        simulateClick(dom, "click", dom);
+        expect(counter).toBe(2);
+    });
+
 });
