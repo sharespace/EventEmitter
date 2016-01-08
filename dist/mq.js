@@ -412,7 +412,7 @@ MQ.Emitter = (function (MQ, p) {
 			//event convert
 			event = event || window.event;
 			//check date
-			if (clickStart > (new Date()).getTime() - 700) {
+			if (clickStart > (new Date()).getTime() - 400) {
 				clickCount += 1;
 				if (clickCount === 3) {
 					clickCount = 0;
