@@ -583,13 +583,13 @@ MQ.Emitter = (function (MQ, p) {
 	 * Run queue
 	 */
 	function runQueue() {
-		var queue,
-			length = notifyQueue.length;
+		var queue;
+
 		//run
-		while(length) {
-			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
+		queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
+		while(queue) {
 			store.evaluate(queue.name, queue.params);
-			length--;
+			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift()
 		}
 	}
 
