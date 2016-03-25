@@ -27,17 +27,12 @@ MQ.Timer = (function (MQ, p) {
      * Run
      */
     p.run = function () {
-        var self = this,
-            handler = this.callback;
         //already running
         if (this.timer) {
             return;
         }
         //create timer
-        this.timer = setTimeout(function () {
-            self.cancel();
-            handler();
-        }, this.timeout);
+        this.timer = setTimeout(interval.bind(this, this.callback), this.timeout);
     };
 
     /**
@@ -50,6 +45,16 @@ MQ.Timer = (function (MQ, p) {
             this.timer = 0;
         }
     };
+
+    /**
+     * @this {Timer}
+     * @param {Function} handler
+     */
+    function interval(handler) {
+        //noinspection JSUnresolvedFunction
+        this.cancel();
+        handler();
+    }
 
     //noinspection JSUnusedGlobalSymbols
     p.version = "1.0";
