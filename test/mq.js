@@ -33,6 +33,7 @@ describe("MQ - base", function () {
 
     it("create new emitter and send request", function () {
         var handler,
+            handler2,
             returned,
             count = 0,
             context = {},
@@ -42,6 +43,8 @@ describe("MQ - base", function () {
             count++;
             expect(params).toEqual({ params1: 10 });
             return params.params1;
+        };
+        handler2 = function (params) {
         };
 
         emitter.subscribe("test", handler);
@@ -57,6 +60,56 @@ describe("MQ - base", function () {
         }).toThrow("EventEmitter: Can not make request on event that has not handler for 'request'.");
 
         expect(count).toBe(1);
+
+        emitter.subscribe("test", handler);
+        emitter.subscribe("test", handler2);
+
+        expect(function () {
+            emitter.request("test", {params1: 10});
+        }).toThrow("EventEmitter: Can not make request on event that has more then one handler. Use EventEmitter.event('test') instead.");
+
+        emitter.unsubscribe("test", handler);
+        emitter.unsubscribe("test", handler2);
+    });
+
+    it("create new emitter and send demand", function () {
+        var handler,
+            returned,
+            handler2,
+            count = 0,
+            context = {},
+            emitter = EventEmitter.create(context);
+
+        handler = function (params) {
+            count++;
+            expect(params).toEqual({ params1: 10 });
+            return params.params1;
+        };
+        handler2 = function (params) {
+        };
+
+        emitter.subscribe("test", handler);
+
+        returned = emitter.demand("test", {params1: 10});
+        expect(count).toBe(1);
+        expect(returned).toBe(10);
+
+        emitter.unsubscribe("test", handler);
+
+        returned = emitter.demand("test", {params1: 10});
+
+        expect(count).toBe(1);
+        expect(returned).toBeUndefined();
+
+        emitter.subscribe("test", handler);
+        emitter.subscribe("test", handler2);
+
+        expect(function () {
+            emitter.demand("test", {params1: 10});
+        }).toThrow("EventEmitter: Can not make demand on event that has more then one handler. Use EventEmitter.event('test') instead.");
+
+        emitter.unsubscribe("test", handler);
+        emitter.unsubscribe("test", handler2);
     });
 
     it("create new emitter and send notify", function (done) {

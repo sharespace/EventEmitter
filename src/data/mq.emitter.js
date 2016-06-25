@@ -23,7 +23,7 @@ MQ.Emitter = (function (MQ, p) {
 	//set data
 	/**
 	 * @type {Window}
-	 * @protected
+	 * @public
 	 */
 	MQ._default = window;
 
@@ -380,6 +380,21 @@ MQ.Emitter = (function (MQ, p) {
 		var returnValue = store.request(name, params);
 		//reporter
 		debugReporter("debug", name, "Request for '" + name + "' return '" + returnValue + "' for parameters ", params);
+		//return data
+		return returnValue;
+	};
+
+	/**
+	 * Demand
+	 * @param {string} name
+	 * @param {Object} params
+	 * @return {Object}
+	 */
+	p.demand = function (name, params) {
+		//evaluate and return response
+		var returnValue = store.demand(name, params);
+		//reporter
+		debugReporter("debug", name, "Demand for '" + name + "' return '" + returnValue + "' for parameters ", params);
 		//return data
 		return returnValue;
 	};

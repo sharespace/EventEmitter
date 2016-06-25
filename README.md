@@ -41,6 +41,13 @@ This is similar to `.event()` but this function return value. This is a really s
 it's right called. If `.request()` has not any handler, than fail because without handler you can not get return value. Call
 also fail if there are more handlers than one, because you can not get return value from more functions.
 
+#### .demand(name, params)
+
+Call request with given `name` and send through given `params` and get return from this call.
+This is similar to `.request()` but this function return value and event return `undefined`. If `.demand()` has not 
+any handler, than do not fail and return `undefined`. Call also fail if there are more handlers than one, 
+because you can not get return value from more functions.
+
 #### .subscribe()
 
 This method is used for subscribing for events, that are triggered by `.event()`, `.notify()` or `.request()`.
