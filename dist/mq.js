@@ -127,10 +127,38 @@ MQ.Store = (function (MQ, p) {
 		//get record
 		record = data[0];
 		//check if is valid
-		result =  record.handler.apply(record.context, params ? [params] : []);
+		result = record.handler.apply(record.context, params ? [params] : []);
 		//no return
 		if (result === undefined) {
 			console.warn("EventEmitter: Return from request '" + name + "' is empty! This is might not be valid state.");
+		}
+		//return
+		return result;
+	}
+
+	//noinspection JSValidateJSDoc
+	/**
+	 * Demand based on context
+	 * @param {Array.<StoreRecord>} data
+	 * @param {string} name
+	 * @param {Object} params
+	 * @return {Object}
+	 */
+	function demand(data, name, params) {
+		var record,
+			result,
+			length = data.length;
+
+		//error
+		if (length > 1) {
+			throw "EventEmitter: Can not make demand on event that has more then one handler. Use EventEmitter.event('" + name + "') instead.";
+		}
+		//get data if handler exists
+		if (length) {
+			//get record
+			record = data[0];
+			//check if is valid
+			result = record.handler.apply(record.context, params ? [params] : []);
 		}
 		//return
 		return result;
@@ -220,7 +248,7 @@ MQ.Store = (function (MQ, p) {
 	}
 
 	/**
-	 * Start record
+	 * Store record
 	 * @param {Object} context
 	 * @param {Function} handler
 	 * @constructor
@@ -235,6 +263,7 @@ MQ.Store = (function (MQ, p) {
 	 * @constructor
 	 */
 	Store = function () {
+		//noinspection JSValidateJSDoc
 		/** @type {Object.<string, Array.<StoreRecord>>}*/
 		this.store = {};
 	};
@@ -252,6 +281,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//get store
+		//noinspection JSValidateTypes
 		event(this.store, name).push(new StoreRecord(context, handler));
 	};
 
@@ -293,6 +323,19 @@ MQ.Store = (function (MQ, p) {
 		return request(event(this.store, name), name, params);
 	};
 
+	/**
+	 * Demand
+	 * @param {string} name
+	 * @param {Object} params
+	 * @return {Object}
+	 */
+	p.demand = function (name, params) {
+		//normalize
+		name = name.toLowerCase();
+		//evaluate
+		return demand(event(this.store, name), name, params);
+	};
+
 	//noinspection JSUnusedGlobalSymbols
 	p.version = "1.0";
 	return Store;
@@ -322,7 +365,7 @@ MQ.Emitter = (function (MQ, p) {
 	//set data
 	/**
 	 * @type {Window}
-	 * @protected
+	 * @public
 	 */
 	MQ._default = window;
 
@@ -679,6 +722,21 @@ MQ.Emitter = (function (MQ, p) {
 		var returnValue = store.request(name, params);
 		//reporter
 		debugReporter("debug", name, "Request for '" + name + "' return '" + returnValue + "' for parameters ", params);
+		//return data
+		return returnValue;
+	};
+
+	/**
+	 * Demand
+	 * @param {string} name
+	 * @param {Object} params
+	 * @return {Object}
+	 */
+	p.demand = function (name, params) {
+		//evaluate and return response
+		var returnValue = store.demand(name, params);
+		//reporter
+		debugReporter("debug", name, "Demand for '" + name + "' return '" + returnValue + "' for parameters ", params);
 		//return data
 		return returnValue;
 	};
