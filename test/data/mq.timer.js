@@ -1,4 +1,4 @@
-/*global MQ*/
+/*global MQ, describe, it*/
 describe("The MQ.Timer", function () {
 	"use strict";
 

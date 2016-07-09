@@ -1,4 +1,4 @@
-/*global console, MQ*/
+/*global console, MQ, describe, it, spyOn*/
 describe("The Emitter", function () {
 	"use strict";
 
@@ -122,7 +122,7 @@ describe("The Emitter", function () {
 		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to on");
 	});
 
-	it ("Disable debug mode", function () {
+	it("Disable debug mode", function () {
 		var emitter = createEmitter();
 
 		spyOn(console, "info");

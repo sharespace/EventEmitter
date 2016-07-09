@@ -2,10 +2,6 @@
 MQ.Store = (function (MQ, p) {
 	"use strict";
 
-	/** @type {Object}*/
-	var Store,
-		StoreRecord;
-
 	/**
 	 * Event name create
 	 * @param {Object} store
@@ -14,6 +10,7 @@ MQ.Store = (function (MQ, p) {
 	 */
 	function event(store, name) {
 		var data = store[name];
+
 		//events not exists
 		if (!data) {
 			data = [];
@@ -117,7 +114,7 @@ MQ.Store = (function (MQ, p) {
 			length = data.length;
 
 		//clear all, no context set
-		if (context === MQ._default) {
+		if (context === MQ.mqDefault) {
 			data.length = 0;
 		} else {
 			//iterate all
@@ -148,7 +145,7 @@ MQ.Store = (function (MQ, p) {
 			data,
 			record,
 			length,
-			isDefault = context === MQ._default;
+			isDefault = context === MQ.mqDefault;
 
 		for (key in store) {
 			if (store.hasOwnProperty(key)) {
@@ -191,20 +188,22 @@ MQ.Store = (function (MQ, p) {
 	 * @param {Function} handler
 	 * @constructor
 	 */
-	StoreRecord = function (context, handler) {
+	function StoreRecord(context, handler) {
+		/** @type {Object}*/
 		this.context = context;
+		/** @type {Function}*/
 		this.handler = handler;
-	};
+	}
 
 	/**
 	 * Store for emitter
 	 * @constructor
 	 */
-	Store = function () {
+	function Store() {
 		//noinspection JSValidateJSDoc
 		/** @type {Object.<string, Array.<StoreRecord>>}*/
 		this.store = {};
-	};
+	}
 
 	//shortcut
 	p = Store.prototype;
@@ -219,20 +218,21 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//get store
-		//noinspection JSValidateTypes
+		//noinspection JSValidateTypes,JSUnresolvedVariable
 		event(this.store, name).push(new StoreRecord(context, handler));
 	};
 
 	/**
 	 * Remove
 	 * @param {Object} context
-	 * @param {string=} name
+	 * @param {string|null=} name
 	 * @param {function=} handler
 	 */
 	p.remove = function (context, name, handler) {
 		//normalize
 		name = name ? name.toLowerCase() : name;
 		//get store
+		//noinspection JSUnresolvedVariable
 		remove(this.store, context, name, handler);
 	};
 
@@ -245,6 +245,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		evaluate(event(this.store, name), params);
 	};
 
@@ -258,6 +259,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		return request(event(this.store, name), name, params);
 	};
 
@@ -271,6 +273,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		return demand(event(this.store, name), name, params);
 	};
 

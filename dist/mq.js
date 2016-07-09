@@ -1,72 +1,65 @@
 var MQ = {};;/*global MQ*/
 MQ.Timer = (function (MQ, p) {
 	"use strict";
-	
-    /** @type {Object}*/
-    var Timer;
 
-    /**
-     * Timer for emitter
-     * @param {number} timeout
-     * @param {function} callback
-     * @constructor
-     */
-    Timer = function (timeout, callback) {
-        /** @type {number}*/
-        this.timeout = timeout || 30;
-        /** @type {number}*/
-        this.timer = 0;
-        /** @type {function}*/
-        this.callback = callback;
-    };
+	/**
+	 * Timer for emitter
+	 * @param {number} timeout
+	 * @param {function} callback
+	 * @constructor
+	 */
+	function Timer(timeout, callback) {
+		/** @type {number}*/
+		this.timeout = timeout || 30;
+		/** @type {number}*/
+		this.timer = 0;
+		/** @type {function}*/
+		this.callback = callback;
+	}
 
-    //shortcut
-    p = Timer.prototype;
+	//shortcut
+	p = Timer.prototype;
 
-    /**
-     * Run
-     */
-    p.run = function () {
-        //already running
-        if (this.timer) {
-            return;
-        }
-        //create timer
-        this.timer = setTimeout(interval.bind(this, this.callback), this.timeout);
-    };
+	/**
+	 * Run
+	 */
+	p.run = function () {
+		//already running
+		if (this.timer) {
+			return;
+		}
+		//create timer
+		this.timer = setTimeout(interval.bind(this, this.callback), this.timeout);
+	};
 
-    /**
-     * Cancel
-     */
-    p.cancel = function () {
-        //already running
-        if (this.timer) {
-            clearTimeout(this.timer);
-            this.timer = 0;
-        }
-    };
+	/**
+	 * Cancel
+	 */
+	p.cancel = function () {
+		//already running
+		if (this.timer) {
+			clearTimeout(this.timer);
+			this.timer = 0;
+		}
+	};
 
-    /**
-     * @this {Timer}
-     * @param {Function} handler
-     */
-    function interval(handler) {
-        //noinspection JSUnresolvedFunction
-        this.cancel();
-        handler();
-    }
+	/**
+	 * @this {Timer}
+	 * @param {Function} handler
+	 */
+	function interval(handler) {
+		//noinspection JSUnresolvedFunction
+		this.cancel();
+		handler();
+	}
 
-    //noinspection JSUnusedGlobalSymbols
-    p.version = "1.0";
-    return Timer;
+	//noinspection JSUnusedGlobalSymbols
+	p.version = "1.0";
+	return Timer;
 
 }(MQ));;/*global console, MQ*/
 MQ.Store = (function (MQ, p) {
 	"use strict";
-
-	/** @type {Object}*/
-	var Store,
-		StoreRecord;
 
 	/**
 	 * Event name create
@@ -76,6 +69,7 @@ MQ.Store = (function (MQ, p) {
 	 */
 	function event(store, name) {
 		var data = store[name];
+
 		//events not exists
 		if (!data) {
 			data = [];
@@ -179,7 +173,7 @@ MQ.Store = (function (MQ, p) {
 			length = data.length;
 
 		//clear all, no context set
-		if (context === MQ._default) {
+		if (context === MQ.mqDefault) {
 			data.length = 0;
 		} else {
 			//iterate all
@@ -210,7 +204,7 @@ MQ.Store = (function (MQ, p) {
 			data,
 			record,
 			length,
-			isDefault = context === MQ._default;
+			isDefault = context === MQ.mqDefault;
 
 		for (key in store) {
 			if (store.hasOwnProperty(key)) {
@@ -253,20 +247,22 @@ MQ.Store = (function (MQ, p) {
 	 * @param {Function} handler
 	 * @constructor
 	 */
-	StoreRecord = function (context, handler) {
+	function StoreRecord(context, handler) {
+		/** @type {Object}*/
 		this.context = context;
+		/** @type {Function}*/
 		this.handler = handler;
-	};
+	}
 
 	/**
 	 * Store for emitter
 	 * @constructor
 	 */
-	Store = function () {
+	function Store() {
 		//noinspection JSValidateJSDoc
 		/** @type {Object.<string, Array.<StoreRecord>>}*/
 		this.store = {};
-	};
+	}
 
 	//shortcut
 	p = Store.prototype;
@@ -281,20 +277,21 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//get store
-		//noinspection JSValidateTypes
+		//noinspection JSValidateTypes,JSUnresolvedVariable
 		event(this.store, name).push(new StoreRecord(context, handler));
 	};
 
 	/**
 	 * Remove
 	 * @param {Object} context
-	 * @param {string=} name
+	 * @param {string|null=} name
 	 * @param {function=} handler
 	 */
 	p.remove = function (context, name, handler) {
 		//normalize
 		name = name ? name.toLowerCase() : name;
 		//get store
+		//noinspection JSUnresolvedVariable
 		remove(this.store, context, name, handler);
 	};
 
@@ -307,6 +304,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		evaluate(event(this.store, name), params);
 	};
 
@@ -320,6 +318,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		return request(event(this.store, name), name, params);
 	};
 
@@ -333,6 +332,7 @@ MQ.Store = (function (MQ, p) {
 		//normalize
 		name = name.toLowerCase();
 		//evaluate
+		//noinspection JSUnresolvedVariable
 		return demand(event(this.store, name), name, params);
 	};
 
@@ -344,9 +344,7 @@ MQ.Store = (function (MQ, p) {
 MQ.Emitter = (function (MQ, p) {
 	"use strict";
 
-	/** @type {Object}*/
 	var timer,
-		Emitter,
 		/** @type {Array.<NotifyQueueItem>}*/
 		notifyQueue = [],
 		debugFilters = [],
@@ -367,7 +365,7 @@ MQ.Emitter = (function (MQ, p) {
 	 * @type {Window}
 	 * @public
 	 */
-	MQ._default = window;
+	MQ.mqDefault = window;
 
 	/**
 	 * Add event
@@ -375,7 +373,7 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {string} eventType
 	 * @param {function} handler
 	 */
-	function addEvent (element, eventType, handler) {
+	function addEvent(element, eventType, handler) {
 		//tripleclick
 		if (eventType === "tripleclick") {
 			addTripleClick(element, handler);
@@ -398,7 +396,7 @@ MQ.Emitter = (function (MQ, p) {
 		} else {
 			element = element === window ? document : element;
 			//noinspection JSUnresolvedVariable
-			element.attachEvent('on' + eventType, handler.eventDoneRuntime);
+			element.attachEvent("on" + eventType, handler.eventDoneRuntime);
 		}
 		//for firefox
 		if (eventType === "mousewheel") {
@@ -410,10 +408,10 @@ MQ.Emitter = (function (MQ, p) {
 	/**
 	 * Remove handler
 	 * @param {Window|HTMLElement} element
-	 * @param {string} eventType
+	 * @param {string|null} eventType
 	 * @param {function} handler
 	 */
-	function removeEvent (element, eventType, handler) {
+	function removeEvent(element, eventType, handler) {
 		//tripleclick
 		if (eventType === "tripleclick") {
 			removeTripleClick(element, handler);
@@ -427,7 +425,7 @@ MQ.Emitter = (function (MQ, p) {
 		} else {
 			element = element === window ? document : element;
 			//noinspection JSUnresolvedVariable
-			element.detachEvent('on' + eventType, handler.eventDoneRuntime);
+			element.detachEvent("on" + eventType, handler.eventDoneRuntime);
 		}
 		//for firefox
 		if (eventType === "mousewheel") {
@@ -441,7 +439,7 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {Element} el
 	 * @param {Function} handler
 	 */
-	function addTripleClick (el, handler) {
+	function addTripleClick(el, handler) {
 		/**
 		 * Triple click dblclick handler
 		 * @param {Event} event
@@ -486,7 +484,7 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {Element} el
 	 * @param {Function} handler
 	 */
-	function removeTripleClick (el, handler) {
+	function removeTripleClick(el, handler) {
 		//noinspection JSUnresolvedVariable
 		removeEvent(el, "click", handler.tripleClickHandler);
 		//noinspection JSUnresolvedVariable
@@ -496,9 +494,8 @@ MQ.Emitter = (function (MQ, p) {
 	/**
 	 * Stop propagation
 	 * @param {Event} e
-	 * @returns {boolean}
 	 */
-	function stopPropagation (e) {
+	function stopPropagation(e) {
 		e.cancelBubble = true;
 		if (e.stopPropagation !== undefined) {
 			e.stopPropagation();
@@ -510,8 +507,9 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {Event} e
 	 * @returns {boolean}
 	 */
-	function cancelDefault (e) {
-		var evt = e ? e:window.event;
+	function cancelDefault(e) {
+		var evt = e ? e : window.event;
+
 		if (evt.preventDefault) {
 			evt.preventDefault();
 		}
@@ -527,7 +525,10 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {Array.<Object>=} paramsOrUndefined
 	 * @returns {{element: Element, name: string, handler: function, params: Array.<Object>}}
 	 */
-	function normalizeSubscribeParams (nameOrElement, nameOrHandler, handler, paramsOrUndefined) {
+	function normalizeSubscribeParams(nameOrElement, nameOrHandler, handler, paramsOrUndefined) {
+		var isElement,
+			isDocument,
+			isWindow;
 
 		//type 1
 		if (typeof nameOrElement === "string" && typeof nameOrHandler === "function") {
@@ -541,9 +542,9 @@ MQ.Emitter = (function (MQ, p) {
 		}
 
 		//type 2
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
-			isDocument = nameOrElement === document,
-			isWindow = nameOrElement === window;
+		isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1;
+		isDocument = nameOrElement === document;
+		isWindow = nameOrElement === window;
 		//check
 		if ((isElement || isWindow || isDocument) && typeof nameOrHandler === "string" && typeof handler === "function") {
 			//return
@@ -564,12 +565,17 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {Document|Window|Element|string} nameOrElement
 	 * @param {string|function} nameOrHandler
 	 * @param {function} handler
-	 * @returns {{element: Element, name: string, handler: function}}
+	 * @returns {{element: Element, name: string, handler: function}|null}
 	 */
-	function normalizeUnsubscribeParams (nameOrElement, nameOrHandler, handler) {
+	function normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handler) {
+		var isElement,
+			isDocument,
+			isWindow;
+
 		//type 1
 		if (nameOrElement === undefined || nameOrHandler === undefined) {
 			//return
+			//noinspection JSValidateTypes
 			return {
 				element: null,
 				name: null,
@@ -588,9 +594,9 @@ MQ.Emitter = (function (MQ, p) {
 		}
 
 		//type 3
-		var isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1,
-			isDocument = nameOrElement === document,
-			isWindow = nameOrElement === window;
+		isElement = nameOrElement.nodeType && nameOrElement.nodeType === 1;
+		isDocument = nameOrElement === document;
+		isWindow = nameOrElement === window;
 		//check
 		if ((isElement || isWindow || isDocument) && typeof nameOrHandler === "string" && typeof handler === "function") {
 			//return
@@ -601,6 +607,7 @@ MQ.Emitter = (function (MQ, p) {
 			};
 		}
 
+		return null;
 	}
 
 	/**
@@ -635,9 +642,9 @@ MQ.Emitter = (function (MQ, p) {
 
 		//run
 		queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
-		while(queue) {
+		while (queue) {
 			store.evaluate(queue.name, queue.params);
-			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift()
+			queue = /** @type {NotifyQueueItem}*/notifyQueue.shift();
 		}
 	}
 
@@ -648,12 +655,12 @@ MQ.Emitter = (function (MQ, p) {
 	 * @param {boolean} isStatic
 	 * @constructor
 	 */
-	Emitter = function (isStatic) {
+	function Emitter(isStatic) {
 		/** @type {Object}*/
-		this.context = MQ._default;
+		this.context = MQ.mqDefault;
 		/** @type {boolean}*/
 		this.isStatic = isStatic || false;
-	};
+	}
 
 	//shortcut
 	p = Emitter.prototype;
@@ -689,6 +696,7 @@ MQ.Emitter = (function (MQ, p) {
 	 */
 	p.notify = function (name, params) {
 		var queue = /** @type {NotifyQueueItem}*/{};
+
 		//reporter
 		debugReporter("debug", name, "Notify for '" + name + "' send with parameters ", params);
 		//name, params
@@ -720,6 +728,7 @@ MQ.Emitter = (function (MQ, p) {
 	p.request = function (name, params) {
 		//evaluate and return response
 		var returnValue = store.request(name, params);
+
 		//reporter
 		debugReporter("debug", name, "Request for '" + name + "' return '" + returnValue + "' for parameters ", params);
 		//return data
@@ -735,6 +744,7 @@ MQ.Emitter = (function (MQ, p) {
 	p.demand = function (name, params) {
 		//evaluate and return response
 		var returnValue = store.demand(name, params);
+
 		//reporter
 		debugReporter("debug", name, "Demand for '" + name + "' return '" + returnValue + "' for parameters ", params);
 		//return data
@@ -752,12 +762,14 @@ MQ.Emitter = (function (MQ, p) {
 	p.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
 		var context = this.context,
 			data = normalizeSubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined);
+
 		//for element
 		if (data.element) {
 			//add event
 			data.handler.eventHandlerRuntime = function (event) {
 				data.handler.apply(context, [[event].concat(data.params)]);
 			};
+			//noinspection JSUnresolvedVariable
 			addEvent(data.element, data.name, data.handler.eventHandlerRuntime);
 		//no element event
 		} else {
@@ -777,9 +789,10 @@ MQ.Emitter = (function (MQ, p) {
 	 */
 	p.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
 		var data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
+
 		//this is weird
-		if (this.context === MQ._default && !data.name && !data.handler) {
-			console.warn('EventEmitter: You are calling unsubscribe method without parameters. This is unbind all event through application!');
+		if (this.context === MQ.mqDefault && !data.name && !data.handler) {
+			console.warn("EventEmitter: You are calling unsubscribe method without parameters. This is unbind all event through application!");
 		}
 
 		if (data.element) {
@@ -815,7 +828,9 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {Emitter}
 	 */
 	p.in = function (context) {
+		//noinspection JSUnresolvedVariable
 		var isStatic = this.isStatic;
+
 		//static
 		if (isStatic) {
 			throw "EventEmitter: Can not change context on static method. Use EventEmitter.create() with right context.";
@@ -844,4 +859,4 @@ MQ.Emitter = (function (MQ, p) {
 
 }(MQ));;/*global MQ*/
 //EventEmitter create
-var EventEmitter = new MQ.Emitter(true);
+var EventEmitter = new MQ.Emitter(true); //eslint-disable-line
