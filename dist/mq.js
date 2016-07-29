@@ -160,6 +160,16 @@ MQ.Store = (function (MQ, p) {
 
 	//noinspection JSValidateJSDoc
 	/**
+	 * Demand based on context
+	 * @param {Array.<StoreRecord>} data
+	 * @return {number}
+	 */
+	function watching(data) {
+		return data.length;
+	}
+
+	//noinspection JSValidateJSDoc
+	/**
 	 * Remove by name
 	 * @param {Object.<string, Array.<StoreRecord>>} store
 	 * @param {Object} context
@@ -334,6 +344,19 @@ MQ.Store = (function (MQ, p) {
 		//evaluate
 		//noinspection JSUnresolvedVariable
 		return demand(event(this.store, name), name, params);
+	};
+
+	/**
+	 * Watching
+	 * @param {string} name
+	 * @return {number}
+	 */
+	p.watching = function (name) {
+		//normalize
+		name = name.toLowerCase();
+		//evaluate
+		//noinspection JSUnresolvedVariable
+		return watching(event(this.store, name));
 	};
 
 	//noinspection JSUnusedGlobalSymbols
@@ -749,6 +772,21 @@ MQ.Emitter = (function (MQ, p) {
 		debugReporter("debug", name, "Demand for '" + name + "' return '" + returnValue + "' for parameters ", params);
 		//return data
 		return returnValue;
+	};
+
+	/**
+	 * Watching
+	 * @param {string} name
+	 * @return {number}
+	 */
+	p.watching = function (name) {
+		//evaluate and return response
+		var count = store.watching(name);
+
+		//reporter
+		debugReporter("debug", name, "Watching count status for '" + name + "' return '" + count, []);
+		//return data
+		return count;
 	};
 
 	/**
