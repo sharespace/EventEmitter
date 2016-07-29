@@ -154,6 +154,25 @@ describe("MQ - base", function () {
 		expect(count).toBe(1);
 	});
 
+	it("check watching on event", function () {
+		var handler,
+			context = {},
+			emitter = EventEmitter.create(context);
+
+		handler = function () {
+		};
+
+		emitter.subscribe("test", handler);
+
+		expect(emitter.watching("test")).toBe(1);
+		expect(emitter.watching("test1")).toBe(0);
+
+		emitter.unsubscribe();
+
+		expect(emitter.watching("test")).toBe(0);
+		expect(emitter.watching("test1")).toBe(0);
+	});
+
 	/**
 	 * @public
 	 * Simulate

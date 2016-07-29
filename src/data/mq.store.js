@@ -101,6 +101,16 @@ MQ.Store = (function (MQ, p) {
 
 	//noinspection JSValidateJSDoc
 	/**
+	 * Demand based on context
+	 * @param {Array.<StoreRecord>} data
+	 * @return {number}
+	 */
+	function watching(data) {
+		return data.length;
+	}
+
+	//noinspection JSValidateJSDoc
+	/**
 	 * Remove by name
 	 * @param {Object.<string, Array.<StoreRecord>>} store
 	 * @param {Object} context
@@ -275,6 +285,19 @@ MQ.Store = (function (MQ, p) {
 		//evaluate
 		//noinspection JSUnresolvedVariable
 		return demand(event(this.store, name), name, params);
+	};
+
+	/**
+	 * Watching
+	 * @param {string} name
+	 * @return {number}
+	 */
+	p.watching = function (name) {
+		//normalize
+		name = name.toLowerCase();
+		//evaluate
+		//noinspection JSUnresolvedVariable
+		return watching(event(this.store, name));
 	};
 
 	//noinspection JSUnusedGlobalSymbols

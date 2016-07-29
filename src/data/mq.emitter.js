@@ -410,6 +410,21 @@ MQ.Emitter = (function (MQ, p) {
 	};
 
 	/**
+	 * Watching
+	 * @param {string} name
+	 * @return {number}
+	 */
+	p.watching = function (name) {
+		//evaluate and return response
+		var count = store.watching(name);
+
+		//reporter
+		debugReporter("debug", name, "Watching count status for '" + name + "' return '" + count, []);
+		//return data
+		return count;
+	};
+
+	/**
 	 * Subscribe
 	 * @param {Element|string} nameOrElement
 	 * @param {string|function} nameOrHandler
