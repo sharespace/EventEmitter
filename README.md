@@ -63,6 +63,11 @@ More information in section "How to use it"
 This function is used to stop browser event. There are parameters for stop propagation
 and cancel default action. It's helper function.
 
+#### .watching(name)
+
+This function is used for getting number of listener, who use `.subscribe()` method. If function return `0`, nobody listen
+on event and is not necessary to call it.
+
 #### .debugMode(state, filters)
 
 You can turn on debug mode and filter some specific events. Other events will be writen into
