@@ -882,10 +882,10 @@ MQ.Emitter = (function (MQ, p) {
 	/**
 	 * Set debug mode on / off
 	 * @param {boolean} state
-	 * @param {Array.<string>} filters
+	 * @param {Array.<string>=} filters
 	 */
 	p.debugMode = function (state, filters) {
-		debugFilters = filters;
+		debugFilters = filters || [];
 		debugMode = state;
 		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off"));
 	};
