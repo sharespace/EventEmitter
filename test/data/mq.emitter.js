@@ -119,7 +119,7 @@ describe("The Emitter", function () {
 
 		spyOn(console, "info");
 		emitter.debugMode(true, []);
-		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to on");
+		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to on ");
 	});
 
 	it("Disable debug mode", function () {
@@ -127,7 +127,23 @@ describe("The Emitter", function () {
 
 		spyOn(console, "info");
 		emitter.debugMode(false, []);
-		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to off");
+		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to off ");
+	});
+
+	it("Enable simple debug mode", function () {
+		var emitter = createEmitter();
+
+		spyOn(console, "info");
+		emitter.debugMode(true, [], true);
+		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to on with simple mode");
+	});
+
+	it("Disable simple debug mode", function () {
+		var emitter = createEmitter();
+
+		spyOn(console, "info");
+		emitter.debugMode(false, []);
+		expect(console.info).toHaveBeenCalledWith("EventEmitter debug mode is set to off ");
 	});
 
 	it("An emitter provides version", function () {

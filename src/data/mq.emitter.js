@@ -7,6 +7,7 @@ MQ.Emitter = (function (MQ, p) {
 		notifyQueue = [],
 		debugFilters = [],
 		debugMode = false,
+		simpleMode = false,
 		store = new MQ.Store(),
 		//triple click data
 		clickCount = 0,
@@ -286,9 +287,9 @@ MQ.Emitter = (function (MQ, p) {
 		}
 		//get display fnc
 		if (console[type]) {
-			console[type]("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, data);
+			console[type]("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, simpleMode ? "" : data);
 		} else {
-			console.info("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, data);
+			console.info("EventEmitter: (" + (new Date()).toLocaleTimeString() + ") " + message, simpleMode ? "" : data);
 		}
 	}
 
@@ -518,11 +519,13 @@ MQ.Emitter = (function (MQ, p) {
 	 * Set debug mode on / off
 	 * @param {boolean} state
 	 * @param {Array.<string>=} filters
+	 * @param {boolean=} simple
 	 */
-	p.debugMode = function (state, filters) {
+	p.debugMode = function (state, filters, simple) {
 		debugFilters = filters || [];
 		debugMode = state;
-		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off"));
+		simpleMode = simple;
+		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off") + " " + (simple ? "with simple mode" : ""));
 	};
 
 	//noinspection JSUnusedGlobalSymbols
