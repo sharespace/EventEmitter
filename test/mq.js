@@ -173,6 +173,34 @@ describe("MQ - base", function () {
 		expect(emitter.watching("test1")).toBe(0);
 	});
 
+	it("remove events in handler, can not cause error", function () {
+		var handler1,
+			handler2,
+			context = {},
+			called1 = true,
+			called2 = true,
+			emitter = EventEmitter.create(context);
+
+		handler1 = function () {
+			emitter.unsubscribe("test", handler1);
+			called1 = true;
+		};
+
+
+		handler2 = function () {
+			emitter.unsubscribe("test", handler2);
+			called2 = true;
+		};
+
+		emitter.subscribe("test", handler1);
+		emitter.subscribe("test", handler2);
+
+		emitter.event("test");
+
+		expect(called1).toBe(true);
+		expect(called2).toBe(true);
+	});
+
 	/**
 	 * @public
 	 * Simulate

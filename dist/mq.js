@@ -87,9 +87,13 @@ MQ.Store = (function (MQ, p) {
 	function evaluate(data, params) {
 		//iterate
 		var i,
-			record,
-			length = data.length;
+			length,
+			record;
 
+		//clone data and read length
+		data = data.slice(0);
+		length = data.length;
+		//iterate all
 		for (i = 0; i < length; i++) {
 			//record
 			record = data[i];
