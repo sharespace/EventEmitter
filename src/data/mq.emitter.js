@@ -39,11 +39,12 @@ MQ.Emitter = (function (MQ, p) {
 			return;
 		}
 
+		// noinspection JSUnresolvedVariable
 		/**
 		 * Done
 		 * @param {Event} e
 		 */
-		handler.eventDoneRuntime = function (e) {
+		handler.eventDoneRuntime = handler.eventDoneRuntime || function (e) {
 			handler(window.event || e);
 		};
 
@@ -451,12 +452,8 @@ MQ.Emitter = (function (MQ, p) {
 		if (data.element) {
 			//create name by event name
 			property = createHandlerHolderProperty(data.name);
-			//exist, invalid state
-			if (data.handler[property]) {
-				throw "There is already bound event handler for '" + data.name + "' event.";
-			}
 			//add event
-			data.handler[property] = function (event) {
+			data.handler[property] = data.handler[property] || function (event) {
 				data.handler.apply(context, [[event].concat(data.params)]);
 			};
 			//noinspection JSUnresolvedVariable
@@ -491,8 +488,7 @@ MQ.Emitter = (function (MQ, p) {
 			property = createHandlerHolderProperty(data.name);
 			//remove event
 			removeEvent(data.element, data.name, data.handler[property]);
-			//removed tem prop
-			delete data.handler[property];
+
 		//no element event
 		} else {
 			//remove from storage
