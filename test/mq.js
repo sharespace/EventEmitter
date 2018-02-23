@@ -220,13 +220,15 @@ describe("MQ - base", function () {
 		}
 
 		//fill type
-		fakeEvent.srcElement = target;
-		fakeEvent.target = target;
 		fakeEvent.eventName = type;
 
 		if (document.createEvent) {
 			element.dispatchEvent(fakeEvent);
 		} else {
+			// noinspection JSAnnotator
+			fakeEvent.srcElement = target;
+			// noinspection JSAnnotator
+			fakeEvent.target = target;
 			element.fireEvent("on" + type, fakeEvent);
 		}
 	}
@@ -258,9 +260,7 @@ describe("MQ - base", function () {
 	});
 
 	it("bind on dom element twice and fail", function () {
-		var h1,
-			h2,
-			dom,
+		var dom,
 			handler,
 			counter = 0,
 			context = {},
@@ -287,10 +287,7 @@ describe("MQ - base", function () {
 		simulateClick(dom, "dblclick", dom);
 		expect(counter).toBe(2);
 
-		// noinspection JSUnresolvedVariable
-		h1 = handler.clickEventHandlerRuntime;
-		// noinspection JSUnresolvedVariable
-		h2 = handler.dblclickEventHandlerRuntime;
+		expect(handler.handlers.length).toBe(2);
 
 		expect(function () {
 			emitter.subscribe(dom, "click", handler);
@@ -300,28 +297,27 @@ describe("MQ - base", function () {
 			emitter.subscribe(dom, "dblclick", handler);
 		}).not.toThrow();
 
-		simulateClick(dom, "click", dom);
-		expect(counter).toBe(3);
-		simulateClick(dom, "dblclick", dom);
-		expect(counter).toBe(4);
+		expect(handler.handlers.length).toBe(4);
 
-		// noinspection JSUnresolvedVariable
-		expect(handler.clickEventHandlerRuntime === h1).toBe(true);
-		// noinspection JSUnresolvedVariable
-		expect(handler.dblclickEventHandlerRuntime === h2).toBe(true);
+		simulateClick(dom, "click", dom);
+		expect(counter).toBe(4);
+		simulateClick(dom, "dblclick", dom);
+		expect(counter).toBe(6);
+
+		expect(handler.handlers.length).toBe(4);
 
 		emitter.unsubscribe(dom, "click", handler);
+
+		expect(handler.handlers.length).toBe(2);
+
 		emitter.unsubscribe(dom, "dblclick", handler);
 
-		// noinspection JSUnresolvedVariable
-		expect(handler.clickEventHandlerRuntime).toBeDefined();
-		// noinspection JSUnresolvedVariable
-		expect(handler.dblclickEventHandlerRuntime).toBeDefined();
+		expect(handler.handlers.length).toBe(0);
 
 		simulateClick(dom, "click", dom);
-		expect(counter).toBe(4);
+		expect(counter).toBe(6);
 		simulateClick(dom, "dblclick", dom);
-		expect(counter).toBe(4);
+		expect(counter).toBe(6);
 	});
 
 	it("bind on 2 dom elements same handler", function () {

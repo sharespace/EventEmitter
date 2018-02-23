@@ -295,15 +295,6 @@ MQ.Emitter = (function (MQ, p) {
 	}
 
 	/**
-	 * Create handler holder property
-	 * @param {string} type
-	 * @return {string}
-	 */
-	function createHandlerHolderProperty(type) {
-		return type + "EventHandlerRuntime";
-	}
-
-	/**
 	 * Run queue
 	 */
 	function runQueue() {
@@ -436,6 +427,62 @@ MQ.Emitter = (function (MQ, p) {
 	};
 
 	/**
+	 * Create handler
+	 * @param {*} context
+	 * @param {{element: Element, name: string, handler: function, params: Array.<Object>}} data
+	 * @return {function}
+	 */
+	function createHandler(context, data) {
+		var handlers;
+
+		//create name by event name
+		handlers = data.handler.handlers = data.handler.handlers || [];
+
+		/**
+		 * Handler
+		 * @param {Event} event
+		 */
+		function handler(event) {
+			data.handler.apply(context, [[event].concat(data.params)]);
+		}
+		handler.element = data.element;
+		handler.type = data.name;
+		//add
+		handlers.push(handler);
+
+		return handler;
+	}
+
+	/**
+	 * Destroy handler
+	 * @param {{element: Element, name: string, handler: function}|null} data
+	 */
+	function destroyHandler(data) {
+		var i,
+			handlerType,
+			currentHandler,
+			handlerElement,
+			currentType = data.name,
+			currentElement = data.element,
+			handlers = data.handler.handlers || [];
+
+		//iterate all
+		for (i = handlers.length - 1; i >= 0; i--) {
+			//load handler
+			currentHandler = handlers[i];
+			handlerElement = currentHandler.element;
+			handlerType = currentHandler.type;
+			//for this element
+			if (handlerElement === currentElement && currentType === handlerType) {
+				//remove event
+				removeEvent(data.element, data.name, currentHandler);
+				//remove
+				handlers.splice(i, 1);
+			}
+		}
+	}
+
+	/**
 	 * Subscribe
 	 * @param {Element|string} nameOrElement
 	 * @param {string|function} nameOrHandler
@@ -444,20 +491,13 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {Emitter}
 	 */
 	p.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
-		var property,
-			context = this.context,
+		var context = this.context,
 			data = normalizeSubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined);
 
 		//for element
 		if (data.element) {
-			//create name by event name
-			property = createHandlerHolderProperty(data.name);
-			//add event
-			data.handler[property] = data.handler[property] || function (event) {
-				data.handler.apply(context, [[event].concat(data.params)]);
-			};
 			//noinspection JSUnresolvedVariable
-			addEvent(data.element, data.name, data.handler[property]);
+			addEvent(data.element, data.name, createHandler(context, data));
 		//no element event
 		} else {
 			//save to storage
@@ -475,8 +515,7 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {Emitter}
 	 */
 	p.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
-		var property,
-			data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
+		var data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
 
 		//this is weird
 		if (this.context === MQ.mqDefault && !data.name && !data.handler) {
@@ -484,10 +523,8 @@ MQ.Emitter = (function (MQ, p) {
 		}
 
 		if (data.element) {
-			//create name by event name
-			property = createHandlerHolderProperty(data.name);
-			//remove event
-			removeEvent(data.element, data.name, data.handler[property]);
+			//destroy handler
+			destroyHandler(data);
 
 		//no element event
 		} else {
