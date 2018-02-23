@@ -257,6 +257,55 @@ describe("MQ - base", function () {
 		expect(counter).toBe(1);
 	});
 
+	it("bind on dom element twice and fail", function () {
+		var dom,
+			handler,
+			context = {},
+			emitter = EventEmitter.create(context);
+
+		handler = function () {};
+
+		dom = document.createElement("div");
+
+		expect(function () {
+			emitter.subscribe(dom, "click", handler);
+		}).not.toThrow();
+		expect(function () {
+			emitter.subscribe(dom, "dblclick", handler);
+		}).not.toThrow();
+
+		expect(function () {
+			emitter.subscribe(dom, "click", handler);
+		}).toThrow("There is already bound event handler for 'click' event.");
+
+		expect(function () {
+			emitter.subscribe(dom, "dblclick", handler);
+		}).toThrow("There is already bound event handler for 'dblclick' event.");
+
+		// noinspection JSUnresolvedVariable
+		expect(handler.clickEventHandlerRuntime).not.toBeUndefined();
+		// noinspection JSUnresolvedVariable
+		expect(handler.dblclickEventHandlerRuntime).not.toBeUndefined();
+
+		emitter.unsubscribe(dom, "click", handler);
+		emitter.unsubscribe(dom, "dblclick", handler);
+
+		// noinspection JSUnresolvedVariable
+		expect(handler.clickEventHandlerRuntime).toBeUndefined();
+		// noinspection JSUnresolvedVariable
+		expect(handler.dblclickEventHandlerRuntime).toBeUndefined();
+
+		expect(function () {
+			emitter.subscribe(dom, "click", handler);
+		}).not.toThrow();
+		expect(function () {
+			emitter.subscribe(dom, "dblclick", handler);
+		}).not.toThrow();
+
+		emitter.unsubscribe(dom, "click", handler);
+		emitter.unsubscribe(dom, "dblclick", handler);
+	});
+
 	it("bind triple click", function () {
 		var dom,
 			handler,

@@ -663,6 +663,15 @@ MQ.Emitter = (function (MQ, p) {
 	}
 
 	/**
+	 * Create handler holder property
+	 * @param {string} type
+	 * @return {string}
+	 */
+	function createHandlerHolderProperty(type) {
+		return type + "EventHandlerRuntime";
+	}
+
+	/**
 	 * Run queue
 	 */
 	function runQueue() {
@@ -803,17 +812,24 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {Emitter}
 	 */
 	p.subscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined) {
-		var context = this.context,
+		var property,
+			context = this.context,
 			data = normalizeSubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined, paramsOrUndefined);
 
 		//for element
 		if (data.element) {
+			//create name by event name
+			property = createHandlerHolderProperty(data.name);
+			//exist, invalid state
+			if (data.handler[property]) {
+				throw "There is already bound event handler for '" + data.name + "' event.";
+			}
 			//add event
-			data.handler.eventHandlerRuntime = function (event) {
+			data.handler[property] = function (event) {
 				data.handler.apply(context, [[event].concat(data.params)]);
 			};
 			//noinspection JSUnresolvedVariable
-			addEvent(data.element, data.name, data.handler.eventHandlerRuntime);
+			addEvent(data.element, data.name, data.handler[property]);
 		//no element event
 		} else {
 			//save to storage
@@ -831,7 +847,8 @@ MQ.Emitter = (function (MQ, p) {
 	 * @returns {Emitter}
 	 */
 	p.unsubscribe = function (nameOrElement, nameOrHandler, handlerOrUndefined) {
-		var data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
+		var property,
+			data = normalizeUnsubscribeParams(nameOrElement, nameOrHandler, handlerOrUndefined);
 
 		//this is weird
 		if (this.context === MQ.mqDefault && !data.name && !data.handler) {
@@ -839,8 +856,12 @@ MQ.Emitter = (function (MQ, p) {
 		}
 
 		if (data.element) {
+			//create name by event name
+			property = createHandlerHolderProperty(data.name);
 			//remove event
-			removeEvent(data.element, data.name, data.handler.eventHandlerRuntime);
+			removeEvent(data.element, data.name, data.handler[property]);
+			//removed tem prop
+			delete data.handler[property];
 		//no element event
 		} else {
 			//remove from storage
