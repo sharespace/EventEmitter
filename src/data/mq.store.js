@@ -124,26 +124,30 @@ MQ.Store = (function (MQ, p) {
 	function removeByName(store, context, name, handler) {
 		var i,
 			record,
+			canRemove,
+			newData = [],
 			data = event(store, name),
 			length = data.length;
 
 		//clear all, no context set
 		if (context === MQ.mqDefault) {
-			data.length = 0;
+			store[name] = newData;
 		} else {
 			//iterate all
 			for (i = length - 1; i >= 0; i--) {
 				//record
 				record = data[i];
 				//remove right context and right handler
-				if (handler && record.context === context && record.handler === handler) {
-					data.splice(i, 1);
-				}
+				canRemove = handler && record.context === context && record.handler === handler;
 				//remove right context
-				if (!handler && record.context === context) {
-					data.splice(i, 1);
+				canRemove = canRemove || !handler && record.context === context;
+
+				if (!canRemove) {
+					newData.push(record);
 				}
 			}
+			//add
+			store[name] = newData;
 		}
 	}
 
@@ -159,11 +163,14 @@ MQ.Store = (function (MQ, p) {
 			data,
 			record,
 			length,
+			newData,
+			canRemove,
 			isDefault = context === MQ.mqDefault;
 
 		for (key in store) {
 			if (store.hasOwnProperty(key)) {
 				//load data
+				newData = [];
 				data = store[key];
 				length = data.length;
 				//iterate all
@@ -171,10 +178,14 @@ MQ.Store = (function (MQ, p) {
 					//record
 					record = data[i];
 					//remove right context
-					if (record.context === context || isDefault) {
-						data.splice(i, 1);
+					canRemove = record.context === context || isDefault;
+
+					if (!canRemove) {
+						newData.push(record);
 					}
 				}
+				//set new data
+				store[key] = newData;
 			}
 		}
 	}

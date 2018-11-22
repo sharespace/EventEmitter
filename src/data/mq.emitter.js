@@ -462,6 +462,7 @@ MQ.Emitter = (function (MQ, p) {
 			handlerType,
 			currentHandler,
 			handlerElement,
+			newHandlers = [],
 			currentType = data.name,
 			currentElement = data.element,
 			handlers = data.handler.handlers || [];
@@ -476,10 +477,14 @@ MQ.Emitter = (function (MQ, p) {
 			if (handlerElement === currentElement && currentType === handlerType) {
 				//remove event
 				removeEvent(data.element, data.name, currentHandler);
-				//remove
-				handlers.splice(i, 1);
+
+			} else {
+				newHandlers.push(currentHandler);
 			}
 		}
+
+		//save new handlers
+		data.handler.handlers = newHandlers;
 	}
 
 	/**
