@@ -183,26 +183,30 @@ MQ.Store = (function (MQ, p) {
 	function removeByName(store, context, name, handler) {
 		var i,
 			record,
+			canRemove,
+			newData = [],
 			data = event(store, name),
 			length = data.length;
 
 		//clear all, no context set
 		if (context === MQ.mqDefault) {
-			data.length = 0;
+			store[name] = newData;
 		} else {
 			//iterate all
 			for (i = length - 1; i >= 0; i--) {
 				//record
 				record = data[i];
 				//remove right context and right handler
-				if (handler && record.context === context && record.handler === handler) {
-					data.splice(i, 1);
-				}
+				canRemove = handler && record.context === context && record.handler === handler;
 				//remove right context
-				if (!handler && record.context === context) {
-					data.splice(i, 1);
+				canRemove = canRemove || !handler && record.context === context;
+
+				if (!canRemove) {
+					newData.push(record);
 				}
 			}
+			//add
+			store[name] = newData;
 		}
 	}
 
@@ -218,11 +222,14 @@ MQ.Store = (function (MQ, p) {
 			data,
 			record,
 			length,
+			newData,
+			canRemove,
 			isDefault = context === MQ.mqDefault;
 
 		for (key in store) {
 			if (store.hasOwnProperty(key)) {
 				//load data
+				newData = [];
 				data = store[key];
 				length = data.length;
 				//iterate all
@@ -230,10 +237,14 @@ MQ.Store = (function (MQ, p) {
 					//record
 					record = data[i];
 					//remove right context
-					if (record.context === context || isDefault) {
-						data.splice(i, 1);
+					canRemove = record.context === context || isDefault;
+
+					if (!canRemove) {
+						newData.push(record);
 					}
 				}
+				//set new data
+				store[key] = newData;
 			}
 		}
 	}
@@ -461,6 +472,8 @@ MQ.Emitter = (function (MQ, p) {
 			//noinspection JSUnresolvedVariable
 			removeEvent(element, "DOMMouseScroll", handler.eventDoneRuntime);
 		}
+		//remove data
+		cleanHandlerData(handler);
 	}
 
 	/**
@@ -518,6 +531,28 @@ MQ.Emitter = (function (MQ, p) {
 		removeEvent(el, "click", handler.tripleClickHandler);
 		//noinspection JSUnresolvedVariable
 		removeEvent(el, "dblclick", handler.tripleDblClickHandler);
+		//remove data
+		cleanTripleClickHandlerData(handler);
+		cleanHandlerData(handler);
+	}
+
+	/**
+	 * @param {function} handler
+	 */
+	function cleanHandlerData(handler) {
+		//remove data
+		delete handler.element;
+		delete handler.type;
+		delete handler.context;
+	}
+
+	/**
+	 * @param {function} handler
+	 */
+	function cleanTripleClickHandlerData(handler) {
+		//remove data
+		delete handler.tripleClickHandler;
+		delete handler.tripleDblClickHandler;
 	}
 
 	/**
@@ -816,6 +851,7 @@ MQ.Emitter = (function (MQ, p) {
 		}
 		handler.element = data.element;
 		handler.type = data.name;
+		handler.context = context;
 		//add
 		handlers.push(handler);
 
@@ -824,13 +860,16 @@ MQ.Emitter = (function (MQ, p) {
 
 	/**
 	 * Destroy handler
+	 * @param {Object} context
 	 * @param {{element: Element, name: string, handler: function}|null} data
 	 */
-	function destroyHandler(data) {
+	function destroyHandler(context, data) {
 		var i,
 			handlerType,
+			handlerContext,
 			currentHandler,
 			handlerElement,
+			newHandlers = [],
 			currentType = data.name,
 			currentElement = data.element,
 			handlers = data.handler.handlers || [];
@@ -841,14 +880,19 @@ MQ.Emitter = (function (MQ, p) {
 			currentHandler = handlers[i];
 			handlerElement = currentHandler.element;
 			handlerType = currentHandler.type;
+			handlerContext = currentHandler.context;
 			//for this element
-			if (handlerElement === currentElement && currentType === handlerType) {
+			if (handlerElement === currentElement && currentType === handlerType && handlerContext === context) {
 				//remove event
 				removeEvent(data.element, data.name, currentHandler);
-				//remove
-				handlers.splice(i, 1);
+
+			} else {
+				newHandlers.push(currentHandler);
 			}
 		}
+
+		//save new handlers
+		data.handler.handlers = newHandlers;
 	}
 
 	/**
@@ -893,7 +937,7 @@ MQ.Emitter = (function (MQ, p) {
 
 		if (data.element) {
 			//destroy handler
-			destroyHandler(data);
+			destroyHandler(this.context, data);
 
 		//no element event
 		} else {

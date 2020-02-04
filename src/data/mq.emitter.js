@@ -92,6 +92,8 @@ MQ.Emitter = (function (MQ, p) {
 			//noinspection JSUnresolvedVariable
 			removeEvent(element, "DOMMouseScroll", handler.eventDoneRuntime);
 		}
+		//remove data
+		cleanHandlerData(handler);
 	}
 
 	/**
@@ -149,6 +151,28 @@ MQ.Emitter = (function (MQ, p) {
 		removeEvent(el, "click", handler.tripleClickHandler);
 		//noinspection JSUnresolvedVariable
 		removeEvent(el, "dblclick", handler.tripleDblClickHandler);
+		//remove data
+		cleanTripleClickHandlerData(handler);
+		cleanHandlerData(handler);
+	}
+
+	/**
+	 * @param {function} handler
+	 */
+	function cleanHandlerData(handler) {
+		//remove data
+		delete handler.element;
+		delete handler.type;
+		delete handler.context;
+	}
+
+	/**
+	 * @param {function} handler
+	 */
+	function cleanTripleClickHandlerData(handler) {
+		//remove data
+		delete handler.tripleClickHandler;
+		delete handler.tripleDblClickHandler;
 	}
 
 	/**
@@ -447,6 +471,7 @@ MQ.Emitter = (function (MQ, p) {
 		}
 		handler.element = data.element;
 		handler.type = data.name;
+		handler.context = context;
 		//add
 		handlers.push(handler);
 
@@ -455,11 +480,13 @@ MQ.Emitter = (function (MQ, p) {
 
 	/**
 	 * Destroy handler
+	 * @param {Object} context
 	 * @param {{element: Element, name: string, handler: function}|null} data
 	 */
-	function destroyHandler(data) {
+	function destroyHandler(context, data) {
 		var i,
 			handlerType,
+			handlerContext,
 			currentHandler,
 			handlerElement,
 			newHandlers = [],
@@ -473,8 +500,9 @@ MQ.Emitter = (function (MQ, p) {
 			currentHandler = handlers[i];
 			handlerElement = currentHandler.element;
 			handlerType = currentHandler.type;
+			handlerContext = currentHandler.context;
 			//for this element
-			if (handlerElement === currentElement && currentType === handlerType) {
+			if (handlerElement === currentElement && currentType === handlerType && handlerContext === context) {
 				//remove event
 				removeEvent(data.element, data.name, currentHandler);
 
@@ -529,7 +557,7 @@ MQ.Emitter = (function (MQ, p) {
 
 		if (data.element) {
 			//destroy handler
-			destroyHandler(data);
+			destroyHandler(this.context, data);
 
 		//no element event
 		} else {

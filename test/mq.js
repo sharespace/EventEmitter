@@ -406,4 +406,76 @@ describe("MQ - base", function () {
 		expect(counter).toBe(2);
 	});
 
+	it("bind on dom element 2 times with more contexts", function () {
+		var dom,
+			handler1,
+			handler2,
+			counter1 = 0,
+			counter2 = 0,
+			context1 = {},
+			context2 = {},
+			emitter1 = EventEmitter.create(context1),
+			emitter2 = EventEmitter.create(context2);
+
+		handler1 = function () {
+			counter1++;
+		};
+		handler2 = function () {
+			counter2++;
+		};
+
+		dom = document.createElement("div");
+
+		emitter1.subscribe(dom, "click", handler1);
+		emitter2.subscribe(dom, "click", handler2);
+
+		simulateClick(dom, "click", dom);
+		expect(counter1).toBe(1);
+		expect(counter2).toBe(1);
+
+		emitter1.unsubscribe(dom, "click", handler1);
+
+		simulateClick(dom, "click", dom);
+		expect(counter1).toBe(1);
+		expect(counter2).toBe(2);
+
+		emitter2.unsubscribe(dom, "click", handler2);
+
+		simulateClick(dom, "click", dom);
+		expect(counter1).toBe(1);
+		expect(counter2).toBe(2);
+	});
+
+	it("bind on dom element 2 times with more contexts and same handler", function () {
+		var dom,
+			handler,
+			counter = 0,
+			context1 = {},
+			context2 = {},
+			emitter1 = EventEmitter.create(context1),
+			emitter2 = EventEmitter.create(context2);
+
+		handler = function () {
+			counter++;
+		};
+
+		dom = document.createElement("div");
+
+		emitter1.subscribe(dom, "click", handler);
+		emitter2.subscribe(dom, "click", handler);
+
+		simulateClick(dom, "click", dom);
+		expect(counter).toBe(2);
+
+		emitter1.unsubscribe(dom, "click", handler);
+
+		simulateClick(dom, "click", dom);
+		expect(counter).toBe(3);
+
+		emitter2.unsubscribe(dom, "click", handler);
+
+		simulateClick(dom, "click", dom);
+		expect(counter).toBe(3);
+	});
+
 });
