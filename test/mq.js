@@ -478,4 +478,36 @@ describe("MQ - base", function () {
 		expect(counter).toBe(3);
 	});
 
+	it("do not call already removed event", function () {
+		var remove = false,
+			handlerRemove,
+			handlerCounter,
+			counter = 0,
+			context = {},
+			emitter = EventEmitter.create(context);
+
+		handlerRemove = function () {
+			if (remove) {
+				emitter.unsubscribe("COUNTER", handlerCounter);
+			}
+		};
+		handlerCounter = function () {
+			counter++;
+		};
+
+		expect(counter).toBe(0);
+
+		emitter.subscribe("COUNTER", handlerRemove);
+		emitter.subscribe("COUNTER", handlerCounter);
+
+		emitter.event("COUNTER");
+
+		expect(counter).toBe(1);
+
+		remove = true;
+		emitter.event("COUNTER");
+
+		expect(counter).toBe(1);
+	});
+
 });

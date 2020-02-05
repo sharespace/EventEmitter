@@ -98,7 +98,9 @@ MQ.Store = (function (MQ, p) {
 			//record
 			record = data[i];
 			//check if is valid
-			record.handler.apply(record.context, params ? [params] : []);
+			if (!record.removed) {
+				record.handler.apply(record.context, params ? [params] : []);
+			}
 		}
 	}
 
@@ -201,6 +203,7 @@ MQ.Store = (function (MQ, p) {
 				//remove right context
 				canRemove = canRemove || !handler && record.context === context;
 
+				record.removed = canRemove;
 				if (!canRemove) {
 					newData.push(record);
 				}
@@ -239,6 +242,7 @@ MQ.Store = (function (MQ, p) {
 					//remove right context
 					canRemove = record.context === context || isDefault;
 
+					record.removed = canRemove;
 					if (!canRemove) {
 						newData.push(record);
 					}
@@ -277,6 +281,8 @@ MQ.Store = (function (MQ, p) {
 		this.context = context;
 		/** @type {Function}*/
 		this.handler = handler;
+		/** @type {boolean}*/
+		this.removed = false;
 	}
 
 	/**
