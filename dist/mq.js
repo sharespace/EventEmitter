@@ -205,7 +205,7 @@ MQ.Store = (function (MQ, p) {
 
 				record.removed = canRemove;
 				if (!canRemove) {
-					newData.push(record);
+					newData.unshift(record);
 				}
 			}
 			//add
@@ -244,7 +244,7 @@ MQ.Store = (function (MQ, p) {
 
 					record.removed = canRemove;
 					if (!canRemove) {
-						newData.push(record);
+						newData.unshift(record);
 					}
 				}
 				//set new data
