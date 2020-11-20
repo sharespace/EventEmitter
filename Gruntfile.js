@@ -17,6 +17,9 @@ module.exports = function (grunt) {
 		specs = [
 			"test/**/*.js"
 		],
+		performanceSpecs = [
+			"performanceTests/**/*.js"
+		],
 		watch = [
 			"src/**/*.js",
 			"test/**/*.js"
@@ -40,6 +43,13 @@ module.exports = function (grunt) {
 		//Jasmine task
 
 		jasmine: {
+			performance: {
+				src: files,
+				options: {
+					outfile: "TestsRunnerPerformance.html",
+					specs: performanceSpecs
+				}
+			},
 			pivotal: {
 				src: files,
 				options: {

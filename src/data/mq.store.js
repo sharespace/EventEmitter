@@ -145,12 +145,10 @@ MQ.Store = (function (MQ, p) {
 				canRemove = canRemove || !handler && record.context === context;
 
 				record.removed = canRemove;
-				if (!canRemove) {
-					newData.unshift(record);
+				if (canRemove) {
+					data.splice(i, 1);
 				}
 			}
-			//add
-			store[name] = newData;
 		}
 	}
 
@@ -166,14 +164,12 @@ MQ.Store = (function (MQ, p) {
 			data,
 			record,
 			length,
-			newData,
 			canRemove,
 			isDefault = context === MQ.mqDefault;
 
 		for (key in store) {
 			if (store.hasOwnProperty(key)) {
 				//load data
-				newData = [];
 				data = store[key];
 				length = data.length;
 				//iterate all
@@ -184,12 +180,10 @@ MQ.Store = (function (MQ, p) {
 					canRemove = record.context === context || isDefault;
 
 					record.removed = canRemove;
-					if (!canRemove) {
-						newData.unshift(record);
+					if (canRemove) {
+						data.splice(i, 1);
 					}
 				}
-				//set new data
-				store[key] = newData;
 			}
 		}
 	}
