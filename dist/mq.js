@@ -992,6 +992,14 @@ MQ.Emitter = (function (MQ, p) {
 		debugFilters = filters || [];
 		debugMode = state;
 		simpleMode = simple;
+		// store getter when debug mode is on
+		if (state) {
+			p.getStore = function () {
+				return store;
+			};
+		} else {
+			p.getStore = undefined;
+		}
 		console.info("EventEmitter debug mode is set to " + (state ? "on" : "off") + " " + (simple ? "with simple mode" : ""));
 	};
 
